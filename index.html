@@ -1,0 +1,3226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIT 6.S191 (2026) 深度学习导论 — 交互式学习台与课程全库</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F6F7FA;
+      --surface: #FFFFFF;
+      --surface-alt: #EDF0F6;
+      --ink: #111625;
+      --muted: #525B70;
+      --cobalt: #1E40AF;
+      --cobalt-soft: #EEF2FF;
+      --crimson: #A31F34;
+      --crimson-soft: #FDF2F4;
+      --teal: #0F766E;
+      --teal-soft: #ECFDF5;
+      --border: #D8DCE6;
+      --border-strong: #B6BECE;
+      --font-sans: 'IBM Plex Sans', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --max-w: 1240px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(to right, rgba(30, 64, 175, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 64, 175, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: var(--cobalt);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--cobalt);
+      outline-offset: 2px;
+    }
+
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Top Navigation Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(246, 247, 250, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 60px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      background: var(--ink);
+      color: #FFFFFF;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.is-current {
+      color: var(--ink);
+      border-bottom-color: var(--cobalt);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .progress-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .progress-pill strong {
+      color: var(--ink);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--surface-alt);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--cobalt);
+      border-color: var(--cobalt);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: #173594;
+      border-color: #173594;
+    }
+
+    .btn-crimson {
+      background: var(--crimson);
+      border-color: var(--crimson);
+      color: #FFFFFF;
+    }
+
+    .btn-crimson:hover {
+      background: #87182A;
+      border-color: #87182A;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    /* Hero Workbench */
+    .hero {
+      padding: 40px 0 36px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.9fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--crimson-soft);
+      border: 1px solid rgba(163, 31, 52, 0.25);
+      color: var(--crimson);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(26px, 3.2vw, 38px);
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      font-weight: 700;
+    }
+
+    .hero-lead {
+      margin: 0 0 22px;
+      max-width: 64ch;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .hero-specs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .spec-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .spec-value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* Hero Focus Panel */
+    .focus-card {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-top: 3px solid var(--crimson);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+
+    .focus-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .focus-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--crimson);
+    }
+
+    .focus-duration {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .focus-card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .focus-desc {
+      margin: 0 0 14px;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .focus-formula {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--ink);
+      margin-bottom: 14px;
+      overflow-x: auto;
+    }
+
+    .focus-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Section Headers */
+    .section {
+      padding: 44px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      margin: 0 0 4px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+    }
+
+    .section-sub {
+      margin: 0;
+      color: var(--muted);
+      max-width: 68ch;
+      font-size: 14px;
+    }
+
+    /* Syllabus Split Workspace */
+    .syllabus-grid {
+      display: grid;
+      grid-template-columns: 350px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .lecture-rail {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .lecture-item {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      width: 100%;
+      padding: 12px 14px;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 0.12s ease;
+    }
+
+    .lecture-item:last-child {
+      border-bottom: 0;
+    }
+
+    .lecture-item:hover {
+      background: var(--paper);
+    }
+
+    .lecture-item.is-active {
+      background: var(--cobalt-soft);
+      box-shadow: inset 3px 0 0 var(--cobalt);
+    }
+
+    .lecture-item.is-focus-p2.is-active {
+      background: var(--crimson-soft);
+      box-shadow: inset 3px 0 0 var(--crimson);
+    }
+
+    .lec-check {
+      margin-top: 3px;
+      accent-color: var(--cobalt);
+      cursor: pointer;
+      width: 15px;
+      height: 15px;
+    }
+
+    .lec-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .lec-p2-tag {
+      padding: 1px 5px;
+      background: var(--crimson);
+      color: #FFFFFF;
+      border-radius: 3px;
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+
+    .lec-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    .lec-dur {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    /* Lecture Detail Specimen Sheet */
+    .lecture-detail {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 26px;
+    }
+
+    .detail-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .detail-codes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .code-chip {
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      border: 1px solid var(--border);
+      color: var(--ink);
+    }
+
+    .code-chip.is-crimson {
+      background: var(--crimson-soft);
+      border-color: rgba(163, 31, 52, 0.25);
+      color: var(--crimson);
+    }
+
+    .detail-title {
+      margin: 0 0 6px;
+      font-size: 21px;
+      line-height: 1.3;
+    }
+
+    .detail-speaker {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .detail-summary {
+      margin: 0 0 18px;
+      max-width: 68ch;
+      font-size: 14.5px;
+      color: var(--ink);
+    }
+
+    .detail-cols {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .detail-box {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .detail-box h4 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .topic-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+
+    .topic-list li {
+      margin-bottom: 6px;
+    }
+
+    .formula-block {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cobalt);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .notes-area {
+      width: 100%;
+      min-height: 82px;
+      padding: 10px 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      resize: vertical;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .notes-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Software Labs Strip */
+    .labs-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .lab-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .lab-card.is-done {
+      border-color: var(--teal);
+      background: #FAFFFD;
+    }
+
+    .lab-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .lab-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cobalt);
+    }
+
+    .lab-card h4 {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    .lab-card p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .lab-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+
+    /* Interactive Lab Bench */
+    .lab-shell {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .lab-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      background: var(--paper);
+    }
+
+    .lab-tab {
+      padding: 13px 20px;
+      border: 0;
+      border-right: 1px solid var(--border);
+      background: transparent;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .lab-tab:hover {
+      color: var(--ink);
+      background: var(--surface-alt);
+    }
+
+    .lab-tab.is-active {
+      background: var(--surface);
+      color: var(--cobalt);
+      box-shadow: inset 0 -2px 0 var(--cobalt);
+    }
+
+    .lab-pane {
+      display: none;
+      padding: 24px;
+    }
+
+    .lab-pane.is-active {
+      display: block;
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 18px;
+    }
+
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .ctrl-group label {
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .ctrl-select,
+    .ctrl-input {
+      padding: 5px 9px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      font-size: 13px;
+    }
+
+    .sim-split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* Attention Sandbox */
+    .token-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .token-btn {
+      padding: 6px 11px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .token-btn.is-active {
+      background: var(--crimson);
+      border-color: var(--crimson);
+      color: #FFFFFF;
+    }
+
+    .attn-svg-wrap {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+    }
+
+    .attn-matrix-wrap {
+      overflow-x: auto;
+    }
+
+    .attn-table {
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      width: 100%;
+    }
+
+    .attn-table th,
+    .attn-table td {
+      border: 1px solid var(--border);
+      padding: 4px 5px;
+      text-align: center;
+      min-width: 38px;
+    }
+
+    .attn-table th {
+      background: var(--paper);
+      font-weight: 600;
+    }
+
+    .attn-table tr.is-row-active th {
+      background: var(--crimson-soft);
+      color: var(--crimson);
+    }
+
+    /* Optimizer Canvas */
+    .canvas-frame {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 3px;
+      background: #FFFFFF;
+    }
+
+    .opt-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+      font-size: 12.5px;
+      font-family: var(--font-mono);
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+
+    /* CNN Grid */
+    .cnn-workspace {
+      display: grid;
+      grid-template-columns: auto auto auto;
+      gap: 22px;
+      align-items: start;
+      justify-content: start;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .pixel-grid {
+      display: grid;
+      gap: 2px;
+      background: var(--border);
+      padding: 2px;
+      border-radius: var(--radius-sm);
+      user-select: none;
+    }
+
+    .pixel-cell {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .pixel-cell.is-rf {
+      border: 2px solid var(--cobalt);
+    }
+
+    .pixel-cell.is-out-active {
+      outline: 2px solid var(--crimson);
+      outline-offset: -2px;
+    }
+
+    .kernel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 52px);
+      gap: 6px;
+    }
+
+    .kernel-input {
+      width: 52px;
+      height: 38px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+    }
+
+    /* Quiz Layout */
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .quiz-sidebar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+    }
+
+    .quiz-score {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      margin: 4px 0 12px;
+    }
+
+    .quiz-nav-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-num-btn {
+      height: 34px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .quiz-num-btn.is-current {
+      border-color: var(--cobalt);
+      box-shadow: inset 0 0 0 1px var(--cobalt);
+    }
+
+    .quiz-num-btn.is-correct {
+      background: var(--teal-soft);
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .quiz-num-btn.is-wrong {
+      background: var(--crimson-soft);
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+
+    .quiz-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .quiz-q {
+      margin: 8px 0 18px;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.45;
+      max-width: 68ch;
+    }
+
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .quiz-opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .quiz-opt:hover:not(:disabled) {
+      background: var(--surface-alt);
+    }
+
+    .quiz-opt.is-right {
+      background: var(--teal-soft);
+      border-color: var(--teal);
+    }
+
+    .quiz-opt.is-bad {
+      background: var(--crimson-soft);
+      border-color: var(--crimson);
+    }
+
+    .quiz-opt-key {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      min-width: 20px;
+    }
+
+    .quiz-explain {
+      padding: 14px 16px;
+      background: var(--paper);
+      border-left: 3px solid var(--cobalt);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      margin-bottom: 16px;
+    }
+
+    /* Roadmap + Catalog */
+    .roadmap-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .stage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .stage-card:hover {
+      border-color: var(--cobalt);
+    }
+
+    .stage-card.is-active {
+      border-color: var(--cobalt);
+      background: var(--cobalt-soft);
+    }
+
+    .stage-weeks {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--cobalt);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .stage-card h4 {
+      margin: 0 0 6px;
+      font-size: 14.5px;
+    }
+
+    .stage-card p {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .catalog-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .cat-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .cat-pill {
+      padding: 6px 11px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .cat-pill.is-active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #FFFFFF;
+    }
+
+    .catalog-filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .catalog-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+    }
+
+    .catalog-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .catalog-table th {
+      background: var(--paper);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .catalog-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .catalog-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .catalog-table tr:hover td {
+      background: #FAFBFD;
+    }
+
+    .course-title-cell {
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
+    .course-note-cell {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .badge-dub {
+      background: #FEF3C7;
+      border-color: #FCD34D;
+      color: #92400E;
+    }
+
+    .bookmark-btn {
+      padding: 4px 9px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .bookmark-btn.is-saved {
+      background: var(--cobalt-soft);
+      border-color: var(--cobalt);
+      color: var(--cobalt);
+      font-weight: 600;
+    }
+
+    .footer {
+      padding: 30px 0 48px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .syllabus-grid,
+      .sim-split,
+      .quiz-grid {
+        grid-template-columns: 1fr;
+      }
+      .labs-strip,
+      .roadmap-row,
+      .detail-cols {
+        grid-template-columns: 1fr;
+      }
+      .hero-specs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links {
+        display: none;
+      }
+      .topbar-inner {
+        padding: 8px 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      * {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <span class="brand-mark">6.S</span>
+        <span>MIT 6.S191 深度学习交互学习台</span>
+      </div>
+      <nav class="nav-links" aria-label="页面导航">
+        <a href="#syllabus">9讲精讲与实验</a>
+        <a href="#lab">原理交互实验室</a>
+        <a href="#quiz">10题掌握自测</a>
+        <a href="#catalog">62门合集全库</a>
+      </nav>
+      <div class="topbar-actions">
+        <span class="progress-pill">进度 <strong id="top-progress">0/9 讲</strong> · 自测 <strong id="top-quiz">0/10</strong></span>
+        <button type="button" class="btn btn-primary btn-sm" id="export-report-btn">导出学习报告 (.md)</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="hero-tag">当前链接定位：BV1YCh462Emp · 第 2 讲 (p=2)</div>
+          <h1>麻省理工：2026 深度学习导论与系统课程全景</h1>
+          <p class="hero-lead">
+            面向工程与研究学习者的 MIT 6.S191 (2026) 互动工作台。整合 B 站全 9 讲中英字幕课程、MIT 官网最新讲义与三大 Colab 实验，并从同合集 211 部视频中筛选出 62 门深度学习核心课程，配合注意力机制、优化器轨迹与卷积特征图实时模拟器帮助建立直觉。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-crimson" href="https://www.bilibili.com/video/BV1YCh462Emp/?p=2" target="_blank" rel="noopener noreferrer">打开 B 站 P2 原视频</a>
+            <a class="btn" href="https://introtodeeplearning.com" target="_blank" rel="noopener noreferrer">访问 MIT 官网课程页</a>
+            <a class="btn" href="https://github.com/MITDeepLearning/introtodeeplearning" target="_blank" rel="noopener noreferrer">获取 GitHub 实验代码</a>
+          </div>
+          <div class="hero-specs">
+            <div class="spec-item">
+              <span class="spec-label">主干课程时长</span>
+              <span class="spec-value">8h 32m (9讲)</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">配套编程实验</span>
+              <span class="spec-value">3 Colab Labs</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">合集筛选 DL 课程</span>
+              <span class="spec-value">62 门 / 211 部</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">累计学习时长池</span>
+              <span class="spec-value">934.05 小时</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="focus-card" aria-label="P2 默认重点讲次概览">
+          <div class="focus-head">
+            <span class="focus-badge">第 2 讲 · P2 / 官网 Lecture 2</span>
+            <span class="focus-duration">57m 34s</span>
+          </div>
+          <h2>Recurrent Neural Networks, Transformers, and Attention</h2>
+          <p class="focus-desc">
+            从循环神经网络的隐藏状态递推与梯度消失困局出发，阐明为何自注意力机制与位置编码能够在序列建模中实现全局并行与长程依赖捕捉。
+          </p>
+          <div class="focus-formula">Attention(Q, K, V) = softmax( (Q · Kᵀ) / √d_k ) · V</div>
+          <div class="focus-foot">
+            <button type="button" class="btn btn-primary btn-sm" id="jump-attn-lab">进入注意力沙盒模拟</button>
+            <button type="button" class="btn btn-sm" id="jump-p2-detail">查看 P2 完整拆解</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Section 1: 9 Lectures + 3 Labs -->
+    <section class="section" id="syllabus">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">MIT 6.S191 (2026) 全 9 讲精讲与实验矩阵</h2>
+            <p class="section-sub">左侧切换分 P 讲次并勾选完成状态；已精准标注 B 站分 P 与 MIT 官网 Lecture 顺序差异，笔记自动保存至本地浏览器。</p>
+          </div>
+          <div style="font-size:13px; color:var(--muted); font-family:var(--font-mono);">
+            UP主：常春藤中英字幕课 · 发布：2026-09-23
+          </div>
+        </div>
+
+        <div class="syllabus-grid">
+          <div class="lecture-rail" id="lecture-rail" role="tablist" aria-label="MIT 6.S191 课程目录"></div>
+          <div class="lecture-detail" id="lecture-detail" role="tabpanel"></div>
+        </div>
+
+        <div class="labs-strip" id="labs-strip"></div>
+      </div>
+    </section>
+
+    <!-- Section 2: Interactive Principle Simulators -->
+    <section class="section" id="lab">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">深度学习原理交互实验室</h2>
+            <p class="section-sub">将 P1（反向传播与优化）、P2（自注意力机制）、P3（二维卷积感受野）的抽象公式转化为可实时调参的物理直觉。</p>
+          </div>
+        </div>
+
+        <div class="lab-shell">
+          <div class="lab-tabs" role="tablist">
+            <button type="button" class="lab-tab is-active" data-lab="attn">1. Self-Attention 缩放点积沙盒 (P2)</button>
+            <button type="button" class="lab-tab" data-lab="opt">2. 优化器轨迹与激活函数实验台 (P1)</button>
+            <button type="button" class="lab-tab" data-lab="cnn">3. 2D 卷积核特征提取器 (P3)</button>
+          </div>
+
+          <!-- Simulator 1: Self-Attention -->
+          <div class="lab-pane is-active" id="pane-attn">
+            <div class="sim-controls">
+              <div class="ctrl-group">
+                <label for="attn-preset">示例句：</label>
+                <select class="ctrl-select" id="attn-preset">
+                  <option value="0">The animal didn't cross the street because it was too tired</option>
+                  <option value="1">Attention is all you need for sequence modeling</option>
+                  <option value="2">Deep learning transforms vision and natural language</option>
+                </select>
+              </div>
+              <div class="ctrl-group">
+                <label for="attn-custom">自定义词元：</label>
+                <input type="text" class="ctrl-input" id="attn-custom" placeholder="空格分隔，最多12词" style="width:185px;">
+                <button type="button" class="btn btn-sm" id="attn-apply-custom">应用</button>
+              </div>
+              <div class="ctrl-group">
+                <label for="attn-head">注意力头：</label>
+                <select class="ctrl-select" id="attn-head">
+                  <option value="semantic">Head 1 · 语义指代头</option>
+                  <option value="syntactic">Head 2 · 局部句法头</option>
+                  <option value="global">Head 3 · 全局实词锚点头</option>
+                </select>
+              </div>
+              <div class="ctrl-group">
+                <label for="attn-scale">缩放 √d_k：<span id="attn-scale-val" style="font-family:var(--font-mono);">2.0</span></label>
+                <input type="range" id="attn-scale" min="0.5" max="4.5" step="0.25" value="2.0">
+              </div>
+              <div class="ctrl-group">
+                <label><input type="checkbox" id="attn-causal"> 因果掩码 (Causal Mask)</label>
+              </div>
+            </div>
+
+            <p style="margin:0 0 10px; font-size:13px; color:var(--muted);">
+              点击任意 Query 词元观察它向全句 Keys 分配的概率权重（调小 √d_k 可看到点积方差增大导致的 Softmax 尖锐化）：
+            </p>
+            <div class="token-row" id="attn-token-row"></div>
+
+            <div class="sim-split">
+              <div>
+                <div class="attn-svg-wrap">
+                  <svg id="attn-svg" width="660" height="195" viewBox="0 0 660 195" style="width:100%; height:auto;"></svg>
+                </div>
+                <div class="formula-block" id="attn-readout"></div>
+              </div>
+              <div class="attn-matrix-wrap">
+                <table class="attn-table" id="attn-matrix"></table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulator 2: Optimizer & Activation -->
+          <div class="lab-pane" id="pane-opt">
+            <div class="sim-split">
+              <div>
+                <div class="sim-controls">
+                  <div class="ctrl-group">
+                    <label for="opt-lr">学习率 η：<span id="opt-lr-val" style="font-family:var(--font-mono);">0.18</span></label>
+                    <input type="range" id="opt-lr" min="0.02" max="0.72" step="0.02" value="0.18">
+                  </div>
+                  <button type="button" class="btn btn-primary btn-sm" id="opt-toggle">暂停 / 运行</button>
+                  <button type="button" class="btn btn-sm" id="opt-step">单步</button>
+                  <button type="button" class="btn btn-sm" id="opt-reset">重置起点</button>
+                </div>
+                <div class="canvas-frame">
+                  <canvas id="opt-canvas" width="560" height="360" title="点击地形任意位置重新投放初始权重"></canvas>
+                </div>
+                <div class="opt-legend">
+                  <span><i class="legend-dot" style="background:#1E40AF;"></i>SGD: <strong id="loss-sgd">-</strong></span>
+                  <span><i class="legend-dot" style="background:#0F766E;"></i>Momentum: <strong id="loss-mom">-</strong></span>
+                  <span><i class="legend-dot" style="background:#A31F34;"></i>Adam: <strong id="loss-adam">-</strong></span>
+                  <span style="color:var(--muted);">步数: <strong id="opt-steps">0</strong></span>
+                </div>
+                <p style="margin:8px 0 0; font-size:12.5px; color:var(--muted);">
+                  提示：点击损失地形任意位置可重设起点。将 η 调至 0.48 以上可直观观察 SGD 在狭长峡谷方向发生剧烈震荡甚至发散，而 Adam 仍保持稳定收敛。
+                </p>
+              </div>
+
+              <div>
+                <div class="sim-controls">
+                  <div class="ctrl-group">
+                    <label for="act-type">激活函数：</label>
+                    <select class="ctrl-select" id="act-type">
+                      <option value="sigmoid">Sigmoid</option>
+                      <option value="tanh">Tanh</option>
+                      <option value="relu">ReLU</option>
+                      <option value="gelu">GELU</option>
+                    </select>
+                  </div>
+                  <div class="ctrl-group">
+                    <label for="act-z">输入 z：<span id="act-z-val" style="font-family:var(--font-mono);">1.0</span></label>
+                    <input type="range" id="act-z" min="-5" max="5" step="0.1" value="1.0">
+                  </div>
+                </div>
+                <div class="canvas-frame">
+                  <canvas id="act-canvas" width="460" height="300"></canvas>
+                </div>
+                <div class="formula-block" id="act-readout" style="margin-top:10px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulator 3: 2D Convolution -->
+          <div class="lab-pane" id="pane-cnn">
+            <div class="sim-controls">
+              <div class="ctrl-group">
+                <label for="cnn-pattern">8×8 输入图案：</label>
+                <select class="ctrl-select" id="cnn-pattern">
+                  <option value="vertical">垂直边界 (Vertical Edge)</option>
+                  <option value="horizontal">水平条纹 (Horizontal Bar)</option>
+                  <option value="diagonal">主对角线 (Diagonal)</option>
+                  <option value="cross">中心十字 (Cross)</option>
+                  <option value="seven">数字 "7" 轮廓</option>
+                </select>
+              </div>
+              <div class="ctrl-group">
+                <label for="cnn-kernel-preset">3×3 卷积核预设：</label>
+                <select class="ctrl-select" id="cnn-kernel-preset">
+                  <option value="sobelX">垂直边缘检测 (Sobel X)</option>
+                  <option value="sobelY">水平边缘检测 (Sobel Y)</option>
+                  <option value="laplacian">全向边缘检测 (Laplacian)</option>
+                  <option value="sharpen">图像锐化 (Sharpen)</option>
+                  <option value="blur">均值模糊 (Avg /1)</option>
+                </select>
+              </div>
+              <div class="ctrl-group">
+                <label><input type="checkbox" id="cnn-relu" checked> 输出后接 ReLU(max(0, x))</label>
+              </div>
+              <div class="ctrl-group">
+                <label><input type="checkbox" id="cnn-padding"> Same Padding (补零保持 8×8)</label>
+              </div>
+            </div>
+
+            <div class="cnn-workspace">
+              <div>
+                <div style="font-size:13px; font-weight:600; margin-bottom:6px;">输入图像矩阵 (点击格子翻转 0 / 255)</div>
+                <div class="pixel-grid" id="cnn-input-grid" style="grid-template-columns:repeat(8, 32px);"></div>
+              </div>
+              <div>
+                <div style="font-size:13px; font-weight:600; margin-bottom:6px;">3×3 可编辑卷积核权重</div>
+                <div class="kernel-grid" id="cnn-kernel-grid"></div>
+                <div class="formula-block" id="cnn-formula" style="margin-top:12px; width:260px;"></div>
+              </div>
+              <div>
+                <div style="font-size:13px; font-weight:600; margin-bottom:6px;">输出特征图 <span id="cnn-out-shape" style="font-family:var(--font-mono); color:var(--cobalt);">(6×6)</span> (悬停/点击检验感受野)</div>
+                <div class="pixel-grid" id="cnn-output-grid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: 10-Question Quiz -->
+    <section class="section" id="quiz">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">全 9 讲核心概念掌握度自测</h2>
+            <p class="section-sub">共 10 道精选概念与工程判别题，覆盖梯度传播、自注意力缩放、CNN 维度、VAE/扩散模型、LLM 对齐与千卡并行训练。</p>
+          </div>
+        </div>
+
+        <div class="quiz-grid">
+          <aside class="quiz-sidebar">
+            <div style="font-size:13px; color:var(--muted);">当前答题得分</div>
+            <div class="quiz-score" id="quiz-score-big">0 / 10</div>
+            <div class="quiz-nav-grid" id="quiz-nav"></div>
+            <button type="button" class="btn btn-sm" id="quiz-reset-btn" style="width:100%;">重置全部自测题</button>
+          </aside>
+
+          <div class="quiz-card" id="quiz-card"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: 62 Curated Courses + 4-Stage Roadmap -->
+    <section class="section" id="catalog">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">同合集深度学习课程全景库（62 门精选）</h2>
+            <p class="section-sub">提取自 B 站「AI/人工智能/ LLM / AIGC」211 部视频合集，按五大学习维度与四阶段进阶路线组织。</p>
+          </div>
+        </div>
+
+        <div class="roadmap-row" id="roadmap-row">
+          <button type="button" class="stage-card" data-cat="core">
+            <div class="stage-weeks">阶段 1 · 第 1–2 周</div>
+            <h4>闪电入门与全局建图</h4>
+            <p>MIT 6.S191 全 9 讲 + 3 个 Colab Labs + 吴恩达专项巩固。</p>
+          </button>
+          <button type="button" class="stage-card" data-cat="math">
+            <div class="stage-weeks">阶段 2 · 第 3–5 周</div>
+            <h4>矩阵微积分与数学强化</h4>
+            <p>芝加哥深度学习数学精讲 + MIT 18.065 线代与矩阵求导。</p>
+          </button>
+          <button type="button" class="stage-card" data-cat="cv_gen_nlp">
+            <div class="stage-weeks">阶段 3 · 第 6–12 周</div>
+            <h4>视觉、扩散模型与 NLP</h4>
+            <p>Stanford CS231n / CS236 + MIT 6.S184 流匹配 + CS224n。</p>
+          </button>
+          <button type="button" class="stage-card" data-cat="systems">
+            <div class="stage-weeks">阶段 4 · 第 13–18 周</div>
+            <h4>底层系统、GPU 算子与大模型</h4>
+            <p>CMU 10-714 + Karpathy手写GPT + CS336 + GPU Mode / CS234。</p>
+          </button>
+        </div>
+
+        <div class="catalog-toolbar">
+          <div class="cat-pills" id="cat-pills">
+            <button type="button" class="cat-pill is-active" data-cat="all">全部 (62)</button>
+            <button type="button" class="cat-pill" data-cat="core">核心主干 (11)</button>
+            <button type="button" class="cat-pill" data-cat="math">数学理论 (9)</button>
+            <button type="button" class="cat-pill" data-cat="systems">系统与算力 (15)</button>
+            <button type="button" class="cat-pill" data-cat="cv_gen_nlp">视觉·生成·NLP (14)</button>
+            <button type="button" class="cat-pill" data-cat="llm_rl">LLM与深度RL (13)</button>
+          </div>
+          <div class="catalog-filters">
+            <input type="search" class="ctrl-input" id="cat-search" placeholder="搜索课程名、机构、BV号..." style="width:210px;">
+            <select class="ctrl-select" id="cat-sort">
+              <option value="default">默认模块序</option>
+              <option value="dur-desc">时长由高到低</option>
+              <option value="dur-asc">时长由低到高</option>
+            </select>
+            <label style="font-size:13px; display:flex; align-items:center; gap:5px; cursor:pointer;">
+              <input type="checkbox" id="cat-saved-only"> 仅看已收藏 (<span id="saved-count">0</span>)
+            </label>
+          </div>
+        </div>
+
+        <div class="catalog-table-wrap">
+          <table class="catalog-table">
+            <thead>
+              <tr>
+                <th style="width:120px;">所属模块</th>
+                <th>课程名称与内容要点</th>
+                <th style="width:130px;">机构 / 版本</th>
+                <th style="width:95px;">时长</th>
+                <th style="width:165px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="catalog-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        数据采集来源：B 站公开接口 (<span style="font-family:var(--font-mono);">BV1YCh462Emp</span> 及合集 211 部视频) + MIT 官方门户 (<span style="font-family:var(--font-mono);">introtodeeplearning.com</span>)。个人进度、笔记、自测成绩与收藏列表仅保存在当前浏览器本地存储。
+      </div>
+      <div>
+        <button type="button" class="btn btn-sm" id="export-report-footer">导出个人学习总结 (.md)</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // =========================================================================
+    // 1. Structured MIT 6.S191 (2026) 9 Lectures + 3 Labs Data
+    // =========================================================================
+    const MIT_LECTURES = [
+      {
+        p: 1,
+        officialLec: "Lecture 1",
+        title: "01.MIT Introduction to Deep Learning 6.S191",
+        zhTitle: "深度学习导论与神经网络基础",
+        duration: "56m 16s",
+        durationSec: 3376,
+        speaker: "Alexander Amini (MIT 主讲人)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L1.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=1",
+        labRef: "衔接 Software Lab 1（Python 深度学习与音乐生成）",
+        summary: "建立深度学习的数学与计算图基础：从单层感知机出发，通过非线性激活函数堆叠表达能力，并利用反向传播（Backpropagation）与自适应优化器训练深层网络。",
+        topics: [
+          "感知机（Perceptron）线性加权求和与偏置项的几何解释",
+          "Sigmoid、Tanh 与 ReLU 激活函数对非线性表征及梯度传播的影响",
+          "交叉熵损失（Cross-Entropy）与均方误差（MSE）的目标函数选择",
+          "链式法则驱动的反向传播算法与 Mini-batch 随机梯度下降",
+          "学习率调度、动量（Momentum）、Adam 优化器与 Dropout 正则化"
+        ],
+        formulas: [
+          "前向传播:  ŷ = σ( W^(2) · ReLU( W^(1) x + b^(1) ) + b^(2) )",
+          "链式法则:  ∂L/∂w₁ = (∂L/∂ŷ) · (∂ŷ/∂z₁) · (∂z₁/∂w₁)",
+          "参数更新:  W_(t+1) = W_t - η · ∇_W L(W_t)"
+        ]
+      },
+      {
+        p: 2,
+        officialLec: "Lecture 2",
+        isDefaultFocus: true,
+        title: "02.MIT 6.S191 Recurrent Neural Networks, Transformers, and Attention",
+        zhTitle: "循环神经网络、注意力机制与 Transformer",
+        duration: "57m 34s",
+        durationSec: 3454,
+        speaker: "Ava Amini (MIT 主讲人)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L2.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=2",
+        labRef: "核心配套 Software Lab 1（RNN/序列生成爱尔兰民谣）",
+        summary: "【当前 URL 默认聚焦讲次】剖析序列数据（文本、音频、分子序列）的建模难题。先推导 RNN 隐藏状态递推与随时间反向传播（BPTT）的梯度消失瓶颈，随后引出 LSTM 门控机制与颠覆现代 AI 的自注意力（Self-Attention）和 Transformer 架构。",
+        topics: [
+          "序列建模需求：一对多、多对一与多对多（Seq2Seq）拓扑结构",
+          "RNN 跨时间步共享权重矩阵及 BPTT 连乘引发的梯度消失/爆炸",
+          "LSTM 通过遗忘门、输入门、输出门构建无衰减细胞状态通道",
+          "Encoder-Decoder 注意力动机：解决固定长度隐向量的信息压缩瓶颈",
+          "Scaled Dot-Product Attention（Q, K, V 与 1/√d_k 缩放稳定 Softmax 梯度）",
+          "Multi-Head Attention 多子空间表征与 Positional Encoding 位置编码"
+        ],
+        formulas: [
+          "RNN 隐藏态:  h_t = tanh( W_hh · h_(t-1) + W_xh · x_t + b_h )",
+          "缩放点积注意力:  Attention(Q, K, V) = softmax( (Q · Kᵀ) / √d_k ) · V",
+          "位置编码:  PE(pos, 2i) = sin(pos / 10000^(2i/d_model))"
+        ]
+      },
+      {
+        p: 3,
+        officialLec: "Lecture 3",
+        title: "03.MIT 6.S191 Convolutional Neural Networks",
+        zhTitle: "卷积神经网络与计算机视觉",
+        duration: "56m 46s",
+        durationSec: 3406,
+        speaker: "Alexander Amini (MIT 主讲人)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L3.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=3",
+        labRef: "核心配套 Software Lab 2（CNN 人脸检测与偏见消减）",
+        summary: "揭示全连接网络处理高分辨率图像时的空间结构丢失与参数爆炸问题，系统讲解局部感受野、权值共享卷积核、池化降采样以及从图像分类迈向目标检测和语义分割的视觉架构演化。",
+        topics: [
+          "空间不变性与局部感受野（Receptive Field）：从边缘到语义部件的分层特征",
+          "卷积核滑动点积、步幅（Stride）、零填充（Padding）与输出特征图尺寸计算",
+          "最大池化（Max Pooling）在降维同时增强平移鲁棒性",
+          "残差连接（ResNet）解决超深层卷积网络退化问题",
+          "目标检测（R-CNN / YOLO 锚框回归）与语义分割（全卷积解码器）",
+          "视觉模型中的数据分布偏见审计与去偏实践"
+        ],
+        formulas: [
+          "特征图维度:  H_out = floor( (H_in + 2p - k) / s ) + 1",
+          "二维离散卷积:  (I * K)(i, j) = Σ_m Σ_n I(i+m, j+n) · K(m, n)"
+        ]
+      },
+      {
+        p: 4,
+        officialLec: "Lecture 4",
+        title: "04.MIT 6.S191 Deep Generative Modeling",
+        zhTitle: "深度生成建模（VAE / GAN / Diffusion）",
+        duration: "49m 36s",
+        durationSec: 2976,
+        speaker: "Ava Amini (MIT 主讲人)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L4.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=4",
+        labRef: "衔接 Software Lab 2 潜在表征无监督去偏",
+        summary: "从判别式建模 P(y|x) 跨越到无监督生成建模 P(x)，系统比较自编码器、变分自编码器（VAE）、生成对抗网络（GAN）与扩散模型（Diffusion）的核心数学目标与采样机理。",
+        topics: [
+          "隐变量模型（Latent Variable Models）与真实数据流形学习",
+          "VAE 变分推断：重建项与先验 KL 散度的权衡（ELBO 证据下界）",
+          "重参数化技巧（Reparameterization Trick）使随机采样层支持反向传播",
+          "GAN 生成器与判别器的极小极大博弈及模式坍塌（Mode Collapse）成因",
+          "扩散模型（DDPM）：前向高斯加噪马尔可夫链与反向神经网络去噪迭代"
+        ],
+        formulas: [
+          "重参数化:  z = μ + σ ⊙ ε,   ε ~ N(0, I)",
+          "VAE ELBO:  L = E[log p_θ(x|z)] - D_KL( q_φ(z|x) || p(z) )"
+        ]
+      },
+      {
+        p: 5,
+        officialLec: "Lecture 6",
+        title: "05.MIT 6.S191 Language Models and New Frontiers",
+        zhTitle: "大语言模型（LLM）与新前沿",
+        duration: "56m 17s",
+        durationSec: 3377,
+        speaker: "Alexander & Ava Amini",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L6.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=5",
+        labRef: "核心配套 Software Lab 3（开源大语言模型指令微调与自动评测）",
+        summary: "注意：本讲在 B 站排在 P5，对应 MIT 官网 Lecture 6。系统阐述现代大语言模型从自回归下一词元预测预训练，到有监督指令微调（SFT）与人类偏好对齐（RLHF/DPO），再到多模态推理与智能体的前沿演进。",
+        topics: [
+          "BPE 分词与自回归语言建模（Next-Token Prediction）损失函数",
+          "上下文学习（In-Context Learning）与涌现能力机制",
+          "后训练三部曲：SFT 指令微调、参数高效微调（LoRA）与 RLHF/DPO 对齐",
+          "长上下文、测试时推理扩展（Test-Time Compute）与工具调用智能体"
+        ],
+        formulas: [
+          "自回归似然:  P(w₁..w_T) = Π_(t=1..T) P(w_t | w₁, ..., w_(t-1))",
+          "交叉熵语言损失:  L_LM = - Σ_t log P_θ(w_t | w_<t)"
+        ]
+      },
+      {
+        p: 6,
+        officialLec: "Lecture 8",
+        title: "06.MIT 6.S191 AI for Science",
+        zhTitle: "AI 赋能科学研究（大气、材料与药物发现）",
+        duration: "59m 11s",
+        durationSec: 3551,
+        speaker: "Chris Bishop (Microsoft Technical Fellow / 微软研究院 AI for Science 创始人)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L8.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=6",
+        labRef: "科研计算前沿嘉宾演讲（对应官网 Lecture 8）",
+        summary: "牛津物理出身、曾任微软剑桥研究院院长的 Chris Bishop 深入展示深度学习如何将‘提出假设—物理仿真验证’的科学发现周期加速数个数量级。",
+        topics: [
+          "科学发现与第一性原理偏微分方程（PDE）计算的算力瓶颈",
+          "大气与全球气象建模：基于神经网络替代传统数值天气预报",
+          "材料设计与分子模拟：等变图神经网络与晶体结构生成",
+          "药物发现闭环管线：分子生成、结合亲和力预测与湿实验协同"
+        ],
+        formulas: [
+          "神经算子仿真加速:  u(t + Δt) ≈ G_θ( u(t), 物理边界条件 )"
+        ]
+      },
+      {
+        p: 7,
+        officialLec: "Lecture 9",
+        title: "07.MIT 6.S191 Secrets of Massively Parallel",
+        zhTitle: "大规模分布式并行训练的奥秘",
+        duration: "1h 05m (65m 51s)",
+        durationSec: 3951,
+        speaker: "Mathias Lechner (Liquid AI 联合创始人兼 CTO / MIT CSAIL)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L9.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=7",
+        labRef: "大模型集群工程硬核嘉宾演讲（对应官网 Lecture 9）",
+        summary: "拆解将深度神经网络扩展至数千张 GPU 的底层硬件、显存与通信工程真相：从 Scaling Laws、显存重计算，到数据/张量/流水线/序列并行、ZeRO/FSDP、MoE 与 LFM2 实战。",
+        topics: [
+          "GPU 与 CPU 的 FLOPs 算力代差及 Kaplan / LLaMA Scaling Laws",
+          "训练显存解剖（权重/梯度/优化器/激活）与 Activation Checkpointing / Offloading",
+          "并行策略全景：Data Parallelism、Tensor Parallelism、Pipeline Parallelism、Context Parallelism",
+          "分片优化框架：DeepSpeed ZeRO (Stage 1/2/3) 与 PyTorch FSDP",
+          "Mixture of Experts (MoE) 稀疏路由与 Expert Parallelism",
+          "集群网络带宽瓶颈分析与 Liquid AI LFM2 实战组合方案"
+        ],
+        formulas: [
+          "混合精度 Adam 静态显存(每1B参数):  2GB(权重) + 2GB(梯度) + 12GB(FP32主权重与动量) ≈ 16 GB",
+          "ZeRO-3 / FSDP 单卡静态显存:  16 · Ψ / N_GPU"
+        ]
+      },
+      {
+        p: 8,
+        officialLec: "Lecture 5",
+        title: "08.MIT 6.S191 Reinforcement Learning",
+        zhTitle: "深度强化学习与序列决策",
+        duration: "59m 19s",
+        durationSec: 3559,
+        speaker: "Alexander Amini (MIT 主讲人)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L5.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=8",
+        labRef: "对应官网 Lecture 5（序列决策与机器人控制基础）",
+        summary: "当模型不再有现成的静态标签数据，而是必须在动态环境中通过试错交互获取稀疏奖励时，系统梳理马尔可夫决策过程、DQN 价值迭代与策略梯度方法。",
+        topics: [
+          "马尔可夫决策过程（MDP）要素：状态、动作、转移概率、奖励与折扣因子 γ",
+          "价值函数与 Bellman 最优方程、Q-Learning 及 DQN（经验回放 + 目标网络）",
+          "策略梯度定理（REINFORCE）与连续动作空间建模",
+          "引入基线（Baseline）与 Actor-Critic 架构抑制梯度估计高方差",
+          "Model-free vs Model-based 强化学习在游戏与自动驾驶中的应用"
+        ],
+        formulas: [
+          "Bellman 期望更新:  Q*(s,a) = E[ r + γ · max_a' Q*(s', a') ]",
+          "策略梯度:  ∇_θ J(θ) = E[ Σ_t ∇_θ log π_θ(a_t|s_t) · (G_t - b(s_t)) ]"
+        ]
+      },
+      {
+        p: 9,
+        officialLec: "Lecture 7",
+        title: "09.MIT 6.S191 The Three Laws of AI",
+        zhTitle: "AI 三定律与深度学习安全伦理",
+        duration: "51m 49s",
+        durationSec: 3109,
+        speaker: "Douglas Blank (Comet ML 研究负责人)",
+        slideUrl: "https://introtodeeplearning.com/slides/6S191_MIT_DeepLearning_L7.pdf",
+        biliUrl: "https://www.bilibili.com/video/BV1YCh462Emp/?p=9",
+        labRef: "对应官网 Lecture 7（AI 安全协议与实证演示）",
+        summary: "从 1942 年艾萨克·阿西莫夫提出的文学‘机器人三定律’出发，通过现场交互式深度模型实验揭示当前安全护栏的固有脆弱性，提出面向现代自主智能体的‘AI 新三定律’。",
+        topics: [
+          "阿西莫夫机器人三定律的历史意义与工程可验证性困境",
+          "交互式深度模型实测：对抗扰动、提示越狱与分布外泛化失效",
+          "现有安全对齐协议（Safety Protocols）在深度学习黑箱中的内在局限",
+          "面向现代自主智能系统的‘AI 新三定律’设计原则与可审计评估"
+        ],
+        formulas: [
+          "鲁棒安全目标:  min_θ E_(x,y) [ max_(||δ||≤ε) L( f_θ(x + δ), y ) ] + λ · SafetyPenalty"
+        ]
+      }
+    ];
+
+    const SOFTWARE_LABS = [
+      {
+        id: "lab1",
+        num: "Software Lab 1",
+        title: "Deep Learning in Python & Music Generation",
+        desc: "Part 1 手写底层神经网络与梯度更新逻辑；Part 2 基于序列模型学习爱尔兰民谣 ABC 乐谱并采样创作全新音乐。",
+        codeUrl: "https://github.com/MITDeepLearning/introtodeeplearning/tree/master/lab1",
+        extraLabel: "关联 P1 / P2",
+        extraUrl: ""
+      },
+      {
+        id: "lab2",
+        num: "Software Lab 2",
+        title: "Facial Detection Systems & Debiasing",
+        desc: "训练卷积神经网络进行人脸检测，并复现 MIT 去偏论文中的潜空间自适应重采样方法以缓解人种/性别检测偏差。",
+        codeUrl: "https://github.com/MITDeepLearning/introtodeeplearning/tree/master/lab2",
+        extraLabel: "阅读 MIT 去偏论文",
+        extraUrl: "https://introtodeeplearning.com/AAAI_MitigatingAlgorithmicBias.pdf"
+      },
+      {
+        id: "lab3",
+        num: "Software Lab 3",
+        title: "Fine-Tune an LLM, You Must!",
+        desc: "在云端 Colab 对开源大语言模型执行参数微调与风格化指令对齐，并使用自动化 LLM-as-a-Judge 评估输出质量。",
+        codeUrl: "https://github.com/MITDeepLearning/introtodeeplearning/tree/master/lab3",
+        extraLabel: "关联 P5 (Lecture 6)",
+        extraUrl: ""
+      }
+    ];
+
+    // =========================================================================
+    // 2. Real Crawled Bilibili Season Deep Learning Catalog (62 Courses)
+    // =========================================================================
+    const DL_CATALOG = [
+      {bvid:"BV1YCh462Emp",title:"麻省理工：2026深度学习导论 | Introduction To Deep Learning,MIT 6.S191",cat:"core",catName:"核心主干",org:"MIT",lang:"原声/中英字幕",hrs:8.54,dur:"8h 32m",note:"主链接课程（9讲），最新 2026 版精讲全览 · 播放 1,835 / 收藏 207"},
+      {bvid:"BV1pPap6DE4m",title:"【中配】麻省理工：2026深度学习导论 | Introduction To Deep Learning,MIT 6.S191",cat:"core",catName:"核心主干",org:"MIT",lang:"中配版",hrs:10.47,dur:"10h 28m",note:"MIT 6.S191 (2026) 中文配音版本，适合快速听讲"},
+      {bvid:"BV1AsBYBfE3R",title:"麻省理工：深度学习导论 | Introduction To Deep Learning，2025，6.S191",cat:"core",catName:"核心主干",org:"MIT",lang:"原声/中英字幕",hrs:9.72,dur:"9h 43m",note:"2025 往期经典版（10讲） · 播放 1,814 / 收藏 216"},
+      {bvid:"BV1WmVpzdEQv",title:"AI深度专项学习1/5 DeepLearning.AI 1/5",cat:"core",catName:"核心主干",org:"DeepLearning.AI",lang:"中英字幕",hrs:6.86,dur:"6h 51m",note:"吴恩达深度学习专项 1/5：神经网络与深度学习（46P）"},
+      {bvid:"BV1DLJ6zAEmu",title:"AI深度专项学习2/5 DeepLearning.AI 2/5",cat:"core",catName:"核心主干",org:"DeepLearning.AI",lang:"中英字幕",hrs:5.47,dur:"5h 28m",note:"吴恩达深度学习专项 2/5：改善深层神经网络（正则化/优化）"},
+      {bvid:"BV1RMjhzKEcS",title:"AI深度专项学习3/5 DeepLearning.AI 3/5",cat:"core",catName:"核心主干",org:"DeepLearning.AI",lang:"中英字幕",hrs:3.88,dur:"3h 52m",note:"吴恩达深度学习专项 3/5：结构化机器学习项目"},
+      {bvid:"BV1nqV2zDEhE",title:"AI深度专项学习4/5 DeepLearning.AI 4/5",cat:"core",catName:"核心主干",org:"DeepLearning.AI",lang:"中英字幕",hrs:6.68,dur:"6h 40m",note:"吴恩达深度学习专项 4/5：卷积神经网络"},
+      {bvid:"BV1ngjEzjERa",title:"AI深度专项学习5/5 DeepLearning.AI 5/5",cat:"core",catName:"核心主干",org:"DeepLearning.AI",lang:"中英字幕",hrs:5.3,dur:"5h 17m",note:"吴恩达深度学习专项 5/5：序列模型"},
+      {bvid:"BV1rJnBz1EUy",title:"诺奖大师（人工智能之父 杰弗里辛顿 ）：神经网络课程 | Geoffrey Hinton Neural Networks",cat:"core",catName:"核心主干",org:"多伦多大学 / Hinton",lang:"中英字幕",hrs:12.72,dur:"12h 43m",note:"Geoffrey Hinton 亲授神经网络思想史与算法直觉（78P）"},
+      {bvid:"BV1NHui6TEsc",title:"多伦多大学：应用深度学习 | Uoft Applied Deep Learning Winter 2026",cat:"core",catName:"核心主干",org:"多伦多大学",lang:"中英字幕",hrs:30.26,dur:"30h 15m",note:"UofT ECE 2026 冬季完整应用深度学习学期课（36P）"},
+      {bvid:"BV137EF6iE2M",title:"从第一性原理出发的深度网络 | Deep Networks from First Principles 2021",cat:"core",catName:"核心主干",org:"前沿专题",lang:"中英字幕",hrs:0.96,dur:"57m 28s",note:"第一性原理视角理解深度网络结构"},
+
+      {bvid:"BV1DBhR69ERy",title:"芝加哥大学：深度学习数学 | Minicourse Mathematics Of Deep Learning",cat:"math",catName:"数学理论",org:"芝加哥大学",lang:"中英字幕",hrs:5.25,dur:"5h 14m",note:"5P 精讲深度学习数学原理 · 播放 1,808 / 收藏 238"},
+      {bvid:"BV1e4ZWBNEwD",title:"麻省理工: 线性代数与机器学习-线性代数、深度学习、优化和统计学 | 18.065",cat:"math",catName:"数学理论",org:"MIT (Gilbert Strang)",lang:"中英字幕",hrs:28.15,dur:"28h 09m",note:"斯特朗教授经典 36P：线代、优化与深度学习 · 收藏 635"},
+      {bvid:"BV1876KBiEBa",title:"麻省理工：矩阵微积分在机器学习及其扩展中的应用 | Matrix Calculus",cat:"math",catName:"数学理论",org:"MIT 18.S096",lang:"中英字幕",hrs:13.92,dur:"13h 55m",note:"面向自动微分与反向传播的矩阵微积分"},
+      {bvid:"BV116VrzVEgk",title:"机器学习和数据科学数学专项课程1/3 Mathematics for ML 1/3",cat:"math",catName:"数学理论",org:"DeepLearning.AI",lang:"中英字幕",hrs:4.42,dur:"4h 25m",note:"数学专项 1/3：线性代数"},
+      {bvid:"BV1koVmzdEhB",title:"机器学习和数据科学数学专项课程2/3 Mathematics for ML 2/3",cat:"math",catName:"数学理论",org:"DeepLearning.AI",lang:"中英字幕",hrs:4.34,dur:"4h 20m",note:"数学专项 2/3：微积分与梯度优化"},
+      {bvid:"BV1T1VizvEmp",title:"机器学习和数据科学数学专项课程3/3 Mathematics for ML 3/3",cat:"math",catName:"数学理论",org:"DeepLearning.AI",lang:"中英字幕",hrs:8.06,dur:"8h 03m",note:"数学专项 3/3：概率论与数理统计"},
+      {bvid:"BV1sgtw6HENq",title:"麻省理工：统计学习理论及其应用 | MIT 9.520",cat:"math",catName:"数学理论",org:"MIT",lang:"中英字幕",hrs:32.64,dur:"32h 38m",note:"MIT 9.520 统计学习理论、核方法与泛化界"},
+      {bvid:"BV18BQRBiE8i",title:"芝加哥大学：机器学习数学基础 | STAT27700 Fall 2019",cat:"math",catName:"数学理论",org:"芝加哥大学",lang:"中英字幕",hrs:20.77,dur:"20h 46m",note:"STAT27700 机器学习数学推导"},
+      {bvid:"BV1rhGe6AEne",title:"卡耐基梅隆大学：机器学习的数学基础 | 10-606",cat:"math",catName:"数学理论",org:"CMU",lang:"中英字幕",hrs:30.57,dur:"30h 34m",note:"CMU 10-606 高维概率与凸优化体系课"},
+
+      {bvid:"BV1nrsXzaEBb",title:"卡耐基梅隆：CMU深度学习系统-算法与实现",cat:"systems",catName:"系统与算力",org:"CMU 10-714",lang:"中英字幕",hrs:23.26,dur:"23h 15m",note:"陈天奇主讲 24P，从零搭建 Needle 自动微分框架 · 收藏 348"},
+      {bvid:"BV1BJjuzEEtQ",title:"吴恩达团队 · TensorFlow深度学习系统课程1/4",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:1.3,dur:"1h 17m",note:"TensorFlow 深度学习系统课程 1/4"},
+      {bvid:"BV1UZ7UzUE27",title:"吴恩达团队 · TensorFlow深度学习系统课程2/4",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:0.95,dur:"57m 16s",note:"TensorFlow 深度学习系统课程 2/4"},
+      {bvid:"BV1MA7Kz4EWY",title:"吴恩达团队 · TensorFlow深度学习系统课程3/4",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:1.84,dur:"1h 50m",note:"TensorFlow 深度学习系统课程 3/4"},
+      {bvid:"BV1jD7rz3EpL",title:"吴恩达团队 · TensorFlow深度学习系统课程4/4",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:1.63,dur:"1h 37m",note:"TensorFlow 深度学习系统课程 4/4"},
+      {bvid:"BV1haTSzFEUz",title:"高阶开发技术与模型优化1/4 Advanced Techniques TensorFlow",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:2.52,dur:"2h 31m",note:"TensorFlow 高阶开发技术与模型优化 1/4"},
+      {bvid:"BV1VXTrzCE9F",title:"高阶开发技术与模型优化2/4 Advanced Techniques TensorFlow",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:3.13,dur:"3h 07m",note:"TensorFlow 高阶开发技术与模型优化 2/4"},
+      {bvid:"BV1CyTizCEH8",title:"高阶开发技术与模型优化3/4 Advanced Techniques TensorFlow",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:2.7,dur:"2h 41m",note:"TensorFlow 高阶开发技术与模型优化 3/4"},
+      {bvid:"BV16AT3zvEUz",title:"高阶开发技术与模型优化4/4 Advanced Techniques TensorFlow",cat:"systems",catName:"系统与算力",org:"DeepLearning.AI",lang:"中英字幕",hrs:1.86,dur:"1h 51m",note:"TensorFlow 高阶开发技术与模型优化 4/4"},
+      {bvid:"BV14yKn6sEBT",title:"Pytorch大会2026欧洲 | PyTorch Conference Europe 2026",cat:"systems",catName:"系统与算力",org:"PyTorch Foundation",lang:"中英字幕",hrs:26.93,dur:"26h 55m",note:"2026 PyTorch 编译器与分布式生态前瞻"},
+      {bvid:"BV1hXcRzbEEJ",title:"PyTensor：计算图深度解析 | Deep Dive into Computational Graphs",cat:"systems",catName:"系统与算力",org:"开源工程",lang:"中英字幕",hrs:2.53,dur:"2h 31m",note:"PyTensor 计算图优化与符号编译解析"},
+      {bvid:"BV1icVJ6nEQi",title:"高性能AI计算核心三部曲：从CUDA、Triton到FlashAttention",cat:"systems",catName:"系统与算力",org:"GPU 算子优化",lang:"中英字幕",hrs:1.35,dur:"1h 20m",note:"CUDA、Triton 到 FlashAttention 高效算子三部曲"},
+      {bvid:"BV1bTA6zDETU",title:"GPU Mode、CUDA Mode系列课程 | GPU Mode Lectures",cat:"systems",catName:"系统与算力",org:"GPU Mode",lang:"中英字幕",hrs:107.5,dur:"107h 30m",note:"深度学习 GPU Kernel 性能分析与算子调优大全"},
+      {bvid:"BV1QRXNBvEns",title:"CUDA GPU并行编程实战（软硬件协同）",cat:"systems",catName:"系统与算力",org:"并行计算",lang:"中英字幕",hrs:23.42,dur:"23h 25m",note:"线程束调度、共享内存与 Tensor Core 编程实战"},
+      {bvid:"BV1AmFmzdEtq",title:"机器学习的硬件与系统架构",cat:"systems",catName:"系统与算力",org:"系统架构",lang:"中英字幕",hrs:19.11,dur:"19h 06m",note:"AI 芯片与内存墙系统协同设计"},
+
+      {bvid:"BV1fyv8BqE7g",title:"斯坦福大学：计算机视觉的深度学习 | CS231n，2025",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"斯坦福大学",lang:"原声/中英字幕",hrs:21.22,dur:"21h 13m",note:"CS231n 2025 原声版（18P） · 播放 1,986 / 收藏 230"},
+      {bvid:"BV1RLp76vEZu",title:"【中配】斯坦福：计算机视觉的深度学习 | CS231N,2025",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"斯坦福大学",lang:"中配版",hrs:20.53,dur:"20h 31m",note:"Stanford CS231n (2025) 中文配音版本"},
+      {bvid:"BV1dFCCBWEMu",title:"斯坦福：深度生成模型 | CS236：Deep Generative Models 2023",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"斯坦福大学",lang:"中英字幕",hrs:23.59,dur:"23h 35m",note:"18P 覆盖 VAE、GAN、自回归、Flow 与分数扩散模型"},
+      {bvid:"BV1cinvzMEEj",title:"麻省理工：从零构建完整的扩散模型 | MIT 6.S184：Flow Matching and Diffusion",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"MIT",lang:"中英字幕",hrs:6.86,dur:"6h 51m",note:"6P 涵盖流匹配与扩散数学基础及 3 个 Colab 图像扩散实验"},
+      {bvid:"BV1NTmDBqEYD",title:"麻省理工：流匹配与扩散模型 | Flow Matching and Diffusion Models,6.S184",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"MIT",lang:"中英字幕",hrs:6.86,dur:"6h 51m",note:"MIT 6.S184 同源镜像版本"},
+      {bvid:"BV132hP6jEW6",title:"多伦多大学：深度生成式AI | Deep GenAI Course (ECE1508)",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"多伦多大学",lang:"中英字幕",hrs:32.58,dur:"32h 34m",note:"60P 长周期深度生成式模型学期课程"},
+      {bvid:"BV14jFZzoE3T",title:"何恺明：端到端生成模型 | Towards End-to-End Generative Modeling",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"MIT / 何恺明",lang:"中英字幕",hrs:0.64,dur:"38m 36s",note:"何恺明学术前沿演讲：端到端生成模型"},
+      {bvid:"BV1Eg37zfEBU",title:"斯坦福：自然语言处理 | 全18集",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"斯坦福大学",lang:"中英字幕",hrs:22.02,dur:"22h 01m",note:"Stanford CS224n 全 18 集"},
+      {bvid:"BV1z3NczaEwf",title:"麻省理工：高级自然语言处理 | Advanced NLP",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"MIT",lang:"中英字幕",hrs:29.67,dur:"29h 40m",note:"MIT 研究级高级 NLP 课程"},
+      {bvid:"BV1eS9pBdESP",title:"卡耐基梅隆大学：高级自然语言处理 | CMU Advanced NLP,Fall 2025",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"CMU",lang:"中英字幕",hrs:27.29,dur:"27h 17m",note:"2025 秋季最新 CMU 高级 NLP"},
+      {bvid:"BV1XrEUzWEP1",title:"自然语言处理专项1/4 Natural Language Processing 1/4",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"DeepLearning.AI",lang:"中英字幕",hrs:3.6,dur:"3h 35m",note:"NLP 专项 1/4：分类与向量空间"},
+      {bvid:"BV1mT7JzcEQ3",title:"自然语言处理专项2/4 Natural Language Processing 2/4",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"DeepLearning.AI",lang:"中英字幕",hrs:3.02,dur:"3h 01m",note:"NLP 专项 2/4：概率模型"},
+      {bvid:"BV1Uc7Sz2Ewh",title:"自然语言处理专项3/4 Natural Language Processing 3/4",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"DeepLearning.AI",lang:"中英字幕",hrs:1.98,dur:"1h 58m",note:"NLP 专项 3/4：序列模型"},
+      {bvid:"BV11w7mzMESk",title:"自然语言处理专项4/4 Natural Language Processing 4/4",cat:"cv_gen_nlp",catName:"视觉·生成·NLP",org:"DeepLearning.AI",lang:"中英字幕",hrs:3.85,dur:"3h 51m",note:"NLP 专项 4/4：注意力机制模型"},
+
+      {bvid:"BV19Py7BUEf5",title:"斯坦福：Transformer专题研讨会 | CS25,Transformers United 2023",cat:"llm_rl",catName:"LLM与深度RL",org:"斯坦福大学",lang:"中英字幕",hrs:34.5,dur:"34h 29m",note:"32P 顶级研讨会（Karpathy、Hinton、Vaswani 等一线作者分享）"},
+      {bvid:"BV154qTBBEbx",title:"斯坦福：从零开始构建大语言模型 | CS336 Spring 2025",cat:"llm_rl",catName:"LLM与深度RL",org:"斯坦福大学",lang:"中英字幕",hrs:22.32,dur:"22h 19m",note:"17P 从数据清洗、Transformer 手写到分布式训练部署 · 收藏 494"},
+      {bvid:"BV1zmnx6ZEcn",title:"GPT到底怎么从零写出来｜Karpathy micrograd+GPT｜Zero to Hero",cat:"llm_rl",catName:"LLM与深度RL",org:"Andrej Karpathy",lang:"中英字幕",hrs:19.35,dur:"19h 21m",note:"10P 从标量反传手写到复现 GPT-2 (124M) · 收藏 174"},
+      {bvid:"BV1H4pFz5EAN",title:"从零开始构建大语言模型 | Building LLMs from scratch by Vizuara",cat:"llm_rl",catName:"LLM与深度RL",org:"Vizuara",lang:"中英字幕",hrs:30.95,dur:"30h 57m",note:"长课时从零构建 LLM 系统实操"},
+      {bvid:"BV1ykC9BvEPh",title:"从零开始用Python搭建大语言模型 | Create a LLM from Scratch",cat:"llm_rl",catName:"LLM与深度RL",org:"Python 实战",lang:"中英字幕",hrs:5.73,dur:"5h 43m",note:"紧凑版纯 Python 手搓大语言模型"},
+      {bvid:"BV1CKV86oEkW",title:"大语言模型架构的比较 | The LLM Architecture Comparison",cat:"llm_rl",catName:"LLM与深度RL",org:"架构解析",lang:"中英字幕",hrs:1.44,dur:"1h 26m",note:"主流开源大模型架构变体深度对比"},
+      {bvid:"BV1LidKBEEFT",title:"阿尔伯塔大学：大模型推理的数学原理 | Math Of Reasoning In Llms 2025",cat:"llm_rl",catName:"LLM与深度RL",org:"阿尔伯塔大学",lang:"中英字幕",hrs:36.3,dur:"36h 17m",note:"思维链与大模型推理数学基础 (2025)"},
+      {bvid:"BV16TXpBhEd6",title:"卡内基梅隆大学：大语言模型推理算法 | Inference Algorithms 2025",cat:"llm_rl",catName:"LLM与深度RL",org:"CMU",lang:"中英字幕",hrs:12.2,dur:"12h 11m",note:"LLM 推理时间缩放与推理算法优化"},
+      {bvid:"BV1e66pBRE6C",title:"斯坦福CS234: 强化学习，2024 | CS234 Reinforcement Learning",cat:"llm_rl",catName:"LLM与深度RL",org:"斯坦福大学",lang:"中英字幕",hrs:20.18,dur:"20h 10m",note:"16P 强化学习核心挑战、探索与深度强化学习"},
+      {bvid:"BV1XykZBdEAZ",title:"普林斯顿：强化学习基础 | ECE524 2024",cat:"llm_rl",catName:"LLM与深度RL",org:"普林斯顿大学",lang:"中英字幕",hrs:28.38,dur:"28h 22m",note:"强理论向强化学习基础课程"},
+      {bvid:"BV1XGe76oEnX",title:"机器人深度强化学习: 连续控制, 步态生成与仿真技术",cat:"llm_rl",catName:"LLM与深度RL",org:"机器人学习",lang:"中英字幕",hrs:9.96,dur:"9h 57m",note:"连续控制与步态仿真中的深度强化学习"},
+      {bvid:"BV1G9Nw6kE5r",title:"蒙特利尔大学：机器人基础模型与深度强化学习扩展 | Scaling DeepRL",cat:"llm_rl",catName:"LLM与深度RL",org:"蒙特利尔大学",lang:"中英字幕",hrs:34.75,dur:"34h 45m",note:"Scaling DeepRL 与机器人基础模型"},
+      {bvid:"BV1WBYL6MEQT",title:"物理AI基础：VLM、VLA与WAM的数学原理",cat:"llm_rl",catName:"LLM与深度RL",org:"具身智能",lang:"中英字幕",hrs:5.27,dur:"5h 16m",note:"视觉-语言-动作模型（VLA）与世界动作模型数学原理"}
+    ];
+
+    // =========================================================================
+    // 3. 10 Quiz Questions Covering All 9 Lectures
+    // =========================================================================
+    const QUIZ_DATA = [
+      {
+        p: 1,
+        question: "在深层神经网络中，为什么使用 Sigmoid 激活函数比 ReLU 更容易导致底层权重难以更新？",
+        options: [
+          "Sigmoid 的计算复杂度是 O(n²)，导致反向传播内存溢出",
+          "Sigmoid 在 |z| 较大时导数趋近于 0（最大仅 0.25），多层链式法则连乘引发梯度消失",
+          "Sigmoid 只能输出负数，无法用于分类任务的概率输出",
+          "Sigmoid 必须配合无监督预训练才能在 Python 中求导"
+        ],
+        answer: 1,
+        explain: "Sigmoid 导数为 σ(z)(1-σ(z))，其峰值仅为 0.25，当输入落在饱和区时梯度迅速衰减至接近 0；反向传播多层连乘后，浅层梯度几乎消失。ReLU 在正半区导数恒为 1，大幅缓解了该问题。"
+      },
+      {
+        p: 2,
+        question: "Transformer 缩放点积注意力公式 softmax(QKᵀ / √d_k)V 中，为什么要除以 √d_k？",
+        options: [
+          "为了把矩阵乘法的时间复杂度从 O(n²) 降为 O(n)",
+          "当维度 d_k 较大时，Q 与 K 点积的方差按 d_k 线性增长，除以 √d_k 可防止 Softmax 进入梯度极小的饱和区",
+          "为了替代位置编码（Positional Encoding）注入词序信息",
+          "为了强迫注意力矩阵成为对称正定矩阵"
+        ],
+        answer: 1,
+        explain: "若 q 和 k 的各分量均值为 0、方差为 1，则点积 q·k 的均值为 0、方差为 d_k。d_k 增大时，极大点积值会把 Softmax 推向概率接近 0/1 的平坦区，导致梯度几乎消失；除以 √d_k 可将点积方差稳定回 1。"
+      },
+      {
+        p: 2,
+        question: "与循环神经网络（RNN）相比，Transformer 自注意力层在训练长序列时的核心架构优势是什么？",
+        options: [
+          "任何两个位置间的最大依赖路径长度缩短为 O(1)，且所有时间步可完全并行计算",
+          "不再需要任何权重矩阵乘法，完全依靠池化实现序列建模",
+          "处理长度为 n 的序列时显存占用仅为 O(1)",
+          "只支持单向历史读取，不能观察右侧上下文"
+        ],
+        answer: 0,
+        explain: "RNN 必须按 t=1..T 串行递推，无法在序列维度并行，且首尾词元路径长度为 O(n)；Self-Attention 通过一次矩阵乘法让任意两词元直接交互（路径 O(1)），充分释放 GPU 并行算力。"
+      },
+      {
+        p: 3,
+        question: "一个 32×32 的单通道图像经过核大小 k=5、步幅 s=2、零填充 p=2 的 2D 卷积层后，输出特征图空间尺寸是多少？",
+        options: [
+          "14 × 14",
+          "15 × 15",
+          "16 × 16",
+          "32 × 32"
+        ],
+        answer: 2,
+        explain: "套用公式 H_out = floor((H_in + 2p - k) / s) + 1 = floor((32 + 4 - 5) / 2) + 1 = floor(31 / 2) + 1 = 15 + 1 = 16，故输出尺寸为 16 × 16。"
+      },
+      {
+        p: 4,
+        question: "在变分自编码器（VAE）中，为什么需要“重参数化技巧”（z = μ + σ ⊙ ε）？",
+        options: [
+          "为了消除重建误差项，只优化 KL 散度",
+          "因为直接从 N(μ, σ²) 随机采样节点无法对参数 μ 和 σ 求导，重参数化将随机性剥离到外部噪声 ε",
+          "为了把生成器变成判别器进行零和博弈",
+          "为了在推理阶段无需采样即可生成确定性图像"
+        ],
+        answer: 1,
+        explain: "随机采样操作本身不可微，反向传播无法穿过采样节点到达编码器；将采样改写为确定性变换 z = μ + σ ⊙ ε（其中 ε ~ N(0,I)）后，梯度即可顺畅流回均值 μ 与标准差 σ 网络。"
+      },
+      {
+        p: 4,
+        question: "扩散模型（Diffusion Models）在训练阶段的典型直接预测目标是什么？",
+        options: [
+          "输入加噪图像 x_t 与时间步 t，直接预测前向过程中加入的高斯噪声 ε（或等价速度场）",
+          "输入真实标签 y，计算交叉熵损失判断图像真伪",
+          "一步直接从纯噪声跳回高清图像，无需迭代去噪",
+          "最小化所有样本之间的像素欧氏距离均值"
+        ],
+        answer: 0,
+        explain: "DDPM 前向过程按固定调度向图像逐步注入高斯噪声；训练时神经网络以 (x_t, t) 为输入预测当步注入的噪声 ε，优化均方误差 ||ε - ε_θ(x_t, t)||²，推理时再逐步迭代去噪采样。"
+      },
+      {
+        p: 5,
+        question: "现代大语言模型（LLM）从基座模型到成为遵循指令的对话助手，标准三阶段流水线顺序是？",
+        options: [
+          "RLHF 对齐 → 监督微调（SFT）→ 无监督预训练",
+          "大规模自回归预训练 → 有监督指令微调（SFT）→ 人类偏好对齐（RLHF / DPO）",
+          "图像卷积预训练 → 决策树剪枝 → 监督微调",
+          "仅需零样本提示词工程，无需任何权重更新阶段"
+        ],
+        answer: 1,
+        explain: "大语言模型先在海量文本上通过下一词元预测预训练获得世界知识；再经 SFT 学习问答指令格式；最后通过 RLHF 或 DPO 对齐人类偏好（有用性、诚实性、安全性）。"
+      },
+      {
+        p: 6,
+        question: "在 MIT 6.S191 第 6 讲《AI for Science》中，Chris Bishop 指出深度学习加速科学发现的核心机制之一是什么？",
+        options: [
+          "完全放弃物理定律与实验验证，只保留纯文本问答",
+          "构建学习物理规律的神经代理/仿真模型，在气象、材料与药物研发管线中将计算速度提升数个数量级",
+          "仅用 CNN 对实验室显微镜照片做 JPEG 压缩",
+          "限制训练数据只能来自 19 世纪的物理论文"
+        ],
+        answer: 1,
+        explain: "科学发现依托“假设—仿真/实验验证”循环；基于深度学习的模型可从大量高精度模拟或观测数据中学习演化规律，在气象预报、材料晶体筛选与药物研发等场景极大突破传统 PDE 计算瓶颈。"
+      },
+      {
+        p: 7,
+        question: "关于第 7 讲《大规模并行训练的奥秘》，以下哪项描述最符合 Mathias Lechner 对千卡训练与显存分片的总结？",
+        options: [
+          "增加 GPU 数量后网络通信永远不会成为瓶颈",
+          "PyTorch FSDP / DeepSpeed ZeRO 通过在设备间分片优化器状态、梯度和参数来突破单卡显存限制，而跨节点通信带宽往往是核心瓶颈",
+          "Activation Checkpointing 会进一步增大峰值显存以换取更少计算量",
+          "CPU 串行算力比 GPU 更适合大规模矩阵乘法训练"
+        ],
+        answer: 1,
+        explain: "Activation Checkpointing 是“用重算换显存”（降低峰值激活显存）；ZeRO/FSDP 分片静态训练状态大幅降低每张卡的显存需求；而随集群规模扩大，All-Reduce / All-Gather 等跨卡通信对网络带宽提出极高要求。"
+      },
+      {
+        p: 8,
+        question: "在策略梯度（REINFORCE）强化学习中，从累积回报 G_t 中减去一个仅依赖状态的基线 b(s_t) 有何作用？",
+        options: [
+          "会引入严重偏差，使策略收敛到最差动作",
+          "在保持策略梯度估计无偏的前提下，显著降低梯度估计的方差并稳定训练",
+          "将连续动作空间强制转换为离散 Q 表",
+          "消除马尔可夫决策过程中的折扣因子 γ"
+        ],
+        answer: 1,
+        explain: "因为 E_{a~π}[∇log π(a|s) · b(s)] = b(s) · ∇ Σ_a π(a|s) = b(s) · ∇1 = 0，减去任意仅依赖状态 s 的基线 b(s) 完全不改变梯度期望（保持无偏），却能大幅降低采样方差（例如优势函数 A = Q - V）。"
+      }
+    ];
+
+    // =========================================================================
+    // 4. LocalStorage Persistence & Helper State
+    // =========================================================================
+    const STORE_KEY = "mit_6s191_2026_hub_v1";
+    const defaultState = {
+      activeP: 2,
+      completedP: [],
+      completedLabs: [],
+      notes: {},
+      quizAnswers: {},
+      quizIndex: 0,
+      savedBVs: ["BV1YCh462Emp"]
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return { ...structuredClone(defaultState), ...parsed };
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    let state = loadState();
+    function saveState() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      } catch {
+        // Ignore storage quota errors in restricted file contexts
+      }
+      updateTopProgress();
+    }
+
+    function updateTopProgress() {
+      document.getElementById("top-progress").textContent = `${state.completedP.length}/9 讲`;
+      let correctCount = 0;
+      QUIZ_DATA.forEach((q, idx) => {
+        if (state.quizAnswers[idx] === q.answer) correctCount++;
+      });
+      document.getElementById("top-quiz").textContent = `${correctCount}/${QUIZ_DATA.length}`;
+      const savedBadge = document.getElementById("saved-count");
+      if (savedBadge) savedBadge.textContent = String(state.savedBVs.length);
+    }
+
+    // =========================================================================
+    // 5. Render Lectures Rail, Active Detail Panel, and Software Labs
+    // =========================================================================
+    function renderLectures() {
+      const rail = document.getElementById("lecture-rail");
+      rail.innerHTML = "";
+      MIT_LECTURES.forEach((lec) => {
+        const isDone = state.completedP.includes(lec.p);
+        const isActive = state.activeP === lec.p;
+        const row = document.createElement("div");
+        row.className = `lecture-item${isActive ? " is-active" : ""}${lec.p === 2 ? " is-focus-p2" : ""}`;
+        row.setAttribute("role", "tab");
+        row.setAttribute("aria-selected", String(isActive));
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.className = "lec-check";
+        cb.checked = isDone;
+        cb.title = `标记 P${lec.p} 已完成`;
+        cb.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (cb.checked) {
+            if (!state.completedP.includes(lec.p)) state.completedP.push(lec.p);
+          } else {
+            state.completedP = state.completedP.filter((x) => x !== lec.p);
+          }
+          saveState();
+        });
+
+        const body = document.createElement("div");
+        const p2Tag = lec.p === 2 ? `<span class="lec-p2-tag">默认聚焦</span>` : "";
+        body.innerHTML = `
+          <div class="lec-meta">
+            <span>P${lec.p} · ${lec.officialLec}</span>
+            ${p2Tag}
+          </div>
+          <div class="lec-name">${lec.zhTitle}</div>
+        `;
+
+        const dur = document.createElement("div");
+        dur.className = "lec-dur";
+        dur.textContent = lec.duration.split(" ")[0] === "1h" ? "65m" : lec.duration;
+
+        row.appendChild(cb);
+        row.appendChild(body);
+        row.appendChild(dur);
+        row.addEventListener("click", () => {
+          state.activeP = lec.p;
+          saveState();
+          renderLectures();
+          renderLectureDetail();
+        });
+        rail.appendChild(row);
+      });
+    }
+
+    function renderLectureDetail() {
+      const lec = MIT_LECTURES.find((x) => x.p === state.activeP) || MIT_LECTURES[1];
+      const container = document.getElementById("lecture-detail");
+      const isDone = state.completedP.includes(lec.p);
+      const savedNote = state.notes[lec.p] || "";
+
+      container.innerHTML = `
+        <div class="detail-top">
+          <div>
+            <div class="detail-codes">
+              <span class="code-chip${lec.p === 2 ? " is-crimson" : ""}">B站分P: P${lec.p}</span>
+              <span class="code-chip">MIT 官网: ${lec.officialLec}</span>
+              <span class="code-chip">时长: ${lec.duration}</span>
+            </div>
+            <h3 class="detail-title">${lec.title}</h3>
+            <div class="detail-speaker">主讲 / 嘉宾：${lec.speaker} · ${lec.labRef}</div>
+          </div>
+          <div class="detail-actions">
+            <a class="btn btn-primary btn-sm" href="${lec.biliUrl}" target="_blank" rel="noopener noreferrer">在 B 站播放 P${lec.p}</a>
+            <a class="btn btn-sm" href="${lec.slideUrl}" target="_blank" rel="noopener noreferrer">官方讲义 PDF</a>
+            <button type="button" class="btn btn-sm" id="detail-toggle-done">${isDone ? "已完成 ✓ (点击取消)" : "标记此讲完成"}</button>
+          </div>
+        </div>
+
+        <p class="detail-summary">${lec.summary}</p>
+
+        <div class="detail-cols">
+          <div class="detail-box">
+            <h4>核心知识点拆解</h4>
+            <ul class="topic-list">
+              ${lec.topics.map((t) => `<li>${t}</li>`).join("")}
+            </ul>
+          </div>
+          <div class="detail-box">
+            <h4>关键数学公式与计算直觉</h4>
+            ${lec.formulas.map((f) => `<div class="formula-block">${f}</div>`).join("")}
+            <div style="margin-top:12px;">
+              <h4 style="margin-bottom:6px;">个人学习笔记（本地自动保存）</h4>
+              <textarea class="notes-area" id="lecture-note-input" placeholder="记录 P${lec.p} 的关键理解、疑问或代码实现心得...">${savedNote.replace(/</g, "&lt;")}</textarea>
+              <div class="notes-foot">
+                <span>自动保存在浏览器 localStorage</span>
+                <span id="note-status">${savedNote ? "已保存笔记" : "等待输入"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("detail-toggle-done").addEventListener("click", () => {
+        if (state.completedP.includes(lec.p)) {
+          state.completedP = state.completedP.filter((x) => x !== lec.p);
+        } else {
+          state.completedP.push(lec.p);
+        }
+        saveState();
+        renderLectures();
+        renderLectureDetail();
+      });
+
+      const noteEl = document.getElementById("lecture-note-input");
+      const statusEl = document.getElementById("note-status");
+      noteEl.addEventListener("input", () => {
+        state.notes[lec.p] = noteEl.value;
+        saveState();
+        statusEl.textContent = "已保存";
+      });
+    }
+
+    function renderLabs() {
+      const strip = document.getElementById("labs-strip");
+      strip.innerHTML = "";
+      SOFTWARE_LABS.forEach((lab) => {
+        const isDone = state.completedLabs.includes(lab.id);
+        const card = document.createElement("div");
+        card.className = `lab-card${isDone ? " is-done" : ""}`;
+        card.innerHTML = `
+          <div>
+            <div class="lab-top">
+              <span class="lab-num">${lab.num}</span>
+              <label style="font-size:12px; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="checkbox" ${isDone ? "checked" : ""} data-lab-check="${lab.id}"> 已完成实验
+              </label>
+            </div>
+            <h4>${lab.title}</h4>
+            <p>${lab.desc}</p>
+          </div>
+          <div class="lab-foot">
+            <a href="${lab.codeUrl}" target="_blank" rel="noopener noreferrer" style="font-weight:600;">打开 GitHub Notebook</a>
+            ${lab.extraUrl
+              ? `<a href="${lab.extraUrl}" target="_blank" rel="noopener noreferrer">${lab.extraLabel}</a>`
+              : `<span style="color:var(--muted);">${lab.extraLabel}</span>`}
+          </div>
+        `;
+        card.querySelector(`[data-lab-check="${lab.id}"]`).addEventListener("change", (e) => {
+          if (e.target.checked) {
+            if (!state.completedLabs.includes(lab.id)) state.completedLabs.push(lab.id);
+          } else {
+            state.completedLabs = state.completedLabs.filter((x) => x !== lab.id);
+          }
+          saveState();
+          renderLabs();
+        });
+        strip.appendChild(card);
+      });
+    }
+
+    // =========================================================================
+    // 6. Simulator 1: Self-Attention Scaled Dot-Product Sandbox
+    // =========================================================================
+    const ATTN_PRESETS = [
+      "The animal didn't cross the street because it was too tired",
+      "Attention is all you need for sequence modeling",
+      "Deep learning transforms vision and natural language"
+    ];
+
+    let attnTokens = ATTN_PRESETS[0].split(" ");
+    let attnQueryIdx = 7; // Default to "it" in preset 0
+
+    function tokenFeatureVec(word, idx, total) {
+      const w = word.toLowerCase();
+      // 4-dim interpretable features: [noun/entity, action/verb, modifier/state, function/pronoun]
+      let f = [0.25, 0.2, 0.2, 0.2];
+      if (["animal", "street", "attention", "sequence", "learning", "vision", "language", "modeling"].includes(w)) {
+        f = [1.4, 0.1, 0.2, 0.1];
+      } else if (["cross", "need", "transforms", "didn't", "is", "was"].includes(w)) {
+        f = [0.2, 1.35, 0.3, 0.2];
+      } else if (["tired", "too", "deep", "natural", "all"].includes(w)) {
+        f = [0.3, 0.2, 1.4, 0.1];
+      } else if (["it", "you", "the", "for", "and", "because"].includes(w)) {
+        f = w === "it" ? [1.25, 0.1, 0.9, 1.1] : [0.1, 0.2, 0.1, 1.1];
+      } else {
+        // Deterministic hash for arbitrary custom words
+        let h = 0;
+        for (let i = 0; i < w.length; i++) h = (h * 31 + w.charCodeAt(i)) % 997;
+        f = [((h % 13) / 10) + 0.2, (((h >> 2) % 13) / 10) + 0.2, (((h >> 4) % 11) / 10) + 0.2, 0.3];
+      }
+      // Subtle positional bias
+      f.push(Math.sin(idx / Math.max(1, total) * Math.PI));
+      return f;
+    }
+
+    function computeAttentionMatrix() {
+      const head = document.getElementById("attn-head").value;
+      const scale = parseFloat(document.getElementById("attn-scale").value);
+      const causal = document.getElementById("attn-causal").checked;
+      const n = attnTokens.length;
+      const feats = attnTokens.map((t, i) => tokenFeatureVec(t, i, n));
+
+      const rawScores = [];
+      const probs = [];
+
+      for (let i = 0; i < n; i++) {
+        const rowRaw = [];
+        for (let j = 0; j < n; j++) {
+          let score = 0;
+          if (causal && j > i) {
+            rowRaw.push(-1e9);
+            continue;
+          }
+          if (head === "semantic") {
+            // Coreference & content-matching
+            const dot = feats[i][0] * feats[j][0] + feats[i][1] * feats[j][1] + feats[i][2] * feats[j][2];
+            const wi = attnTokens[i].toLowerCase();
+            const wj = attnTokens[j].toLowerCase();
+            let boost = 0;
+            if (wi === "it" && (wj === "animal" || wj === "tired")) boost = 1.9;
+            if (wi === "tired" && (wj === "it" || wj === "animal")) boost = 1.1;
+            if (wi === "transforms" && (wj === "vision" || wj === "language")) boost = 1.5;
+            if (wi === "need" && (wj === "attention" || wj === "modeling")) boost = 1.4;
+            score = (dot + boost) * 1.1;
+          } else if (head === "syntactic") {
+            // Local window dependency
+            const dist = Math.abs(i - j);
+            const localBonus = dist === 1 ? 2.4 : dist === 0 ? 1.1 : Math.max(-0.5, 1.4 - dist * 0.55);
+            const dot = (feats[i][1] * feats[j][0] + feats[i][2] * feats[j][0]) * 0.5;
+            score = localBonus + dot;
+          } else {
+            // Global anchors favor nouns/verbs
+            score = (feats[j][0] * 1.4 + feats[j][1] * 0.9 - feats[j][3] * 0.5);
+          }
+          rowRaw.push(score);
+        }
+        rawScores.push(rowRaw);
+
+        // Scaled softmax
+        const scaled = rowRaw.map((s) => (s < -1e8 ? -1e9 : s / scale));
+        const maxVal = Math.max(...scaled);
+        const exps = scaled.map((v) => (v < -1e8 ? 0 : Math.exp(v - maxVal)));
+        const sumExp = exps.reduce((a, b) => a + b, 0) || 1;
+        probs.push(exps.map((e) => e / sumExp));
+      }
+      return { rawScores, probs, scale };
+    }
+
+    function renderAttentionSandbox() {
+      if (attnQueryIdx >= attnTokens.length) attnQueryIdx = 0;
+      const { rawScores, probs, scale } = computeAttentionMatrix();
+
+      // Render token selector pills
+      const rowEl = document.getElementById("attn-token-row");
+      rowEl.innerHTML = "";
+      attnTokens.forEach((tok, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `token-btn${idx === attnQueryIdx ? " is-active" : ""}`;
+        btn.textContent = `${idx}:${tok}`;
+        btn.addEventListener("click", () => {
+          attnQueryIdx = idx;
+          renderAttentionSandbox();
+        });
+        rowEl.appendChild(btn);
+      });
+
+      // Render SVG curved attention arcs
+      const svg = document.getElementById("attn-svg");
+      const W = 660;
+      const n = attnTokens.length;
+      const padX = 36;
+      const stepX = n > 1 ? (W - padX * 2) / (n - 1) : 0;
+      const xs = attnTokens.map((_, i) => (n === 1 ? W / 2 : padX + i * stepX));
+      const baseY = 152;
+
+      let svgHtml = "";
+      const activeProbs = probs[attnQueryIdx];
+      attnTokens.forEach((tok, j) => {
+        const p = activeProbs[j];
+        if (p < 0.015) return;
+        const x1 = xs[attnQueryIdx];
+        const x2 = xs[j];
+        const midX = (x1 + x2) / 2;
+        const arcH = j === attnQueryIdx ? 42 : Math.min(118, 28 + Math.abs(x2 - x1) * 0.26);
+        const path = j === attnQueryIdx
+          ? `M ${x1 - 5} ${baseY - 8} C ${x1 - 24} ${baseY - 68}, ${x1 + 24} ${baseY - 68}, ${x1 + 5} ${baseY - 8}`
+          : `M ${x1} ${baseY - 8} Q ${midX} ${baseY - arcH - 12} ${x2} ${baseY - 8}`;
+        const strokeW = (1 + p * 8).toFixed(2);
+        const opacity = (0.18 + p * 0.82).toFixed(2);
+        const color = j === attnQueryIdx ? "#A31F34" : "#1E40AF";
+        svgHtml += `<path d="${path}" fill="none" stroke="${color}" stroke-width="${strokeW}" stroke-opacity="${opacity}" stroke-linecap="round"/>`;
+      });
+
+      attnTokens.forEach((tok, i) => {
+        const x = xs[i];
+        const p = activeProbs[i];
+        const isQ = i === attnQueryIdx;
+        svgHtml += `
+          <circle cx="${x}" cy="${baseY}" r="${isQ ? 6 : 4}" fill="${isQ ? "#A31F34" : "#1E40AF"}"/>
+          <text x="${x}" y="${baseY + 18}" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" font-weight="${isQ ? "700" : "500"}" fill="${isQ ? "#A31F34" : "#111625"}">${tok}</text>
+          <text x="${x}" y="${baseY + 33}" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" fill="#525B70">${(p * 100).toFixed(0)}%</text>
+        `;
+      });
+      svg.innerHTML = svgHtml;
+
+      // Render numeric matrix table
+      const table = document.getElementById("attn-matrix");
+      let tbl = "<thead><tr><th>Q \\ K</th>" + attnTokens.map((t) => `<th>${t}</th>`).join("") + "</tr></thead><tbody>";
+      probs.forEach((row, i) => {
+        tbl += `<tr class="${i === attnQueryIdx ? "is-row-active" : ""}"><th>${attnTokens[i]}</th>`;
+        row.forEach((val, j) => {
+          const alpha = Math.min(0.88, val * 1.45).toFixed(2);
+          const textColor = val > 0.42 ? "#FFFFFF" : "#111625";
+          tbl += `<td style="background:rgba(30,64,175,${alpha}); color:${textColor};" title="Q:${attnTokens[i]} → K:${attnTokens[j]} = ${(val * 100).toFixed(1)}%">${(val * 100).toFixed(0)}</td>`;
+        });
+        tbl += "</tr>";
+      });
+      tbl += "</tbody>";
+      table.innerHTML = tbl;
+
+      // Top 3 attended targets readout
+      const ranked = activeProbs
+        .map((p, idx) => ({ idx, tok: attnTokens[idx], p, raw: rawScores[attnQueryIdx][idx] }))
+        .sort((a, b) => b.p - a.p)
+        .slice(0, 4);
+      document.getElementById("attn-readout").textContent =
+        `Query [${attnQueryIdx}: "${attnTokens[attnQueryIdx]}"]  |  缩放因子 √d_k = ${scale.toFixed(2)}\n` +
+        `Top 权重分配: ` +
+        ranked.map((r) => `${r.tok}(${(r.p * 100).toFixed(1)}%, raw=${r.raw < -1e8 ? "-∞" : r.raw.toFixed(2)})`).join("  ·  ");
+    }
+
+    function initAttentionSandbox() {
+      const presetSel = document.getElementById("attn-preset");
+      presetSel.addEventListener("change", () => {
+        const idx = parseInt(presetSel.value, 10);
+        attnTokens = ATTN_PRESETS[idx].split(" ");
+        attnQueryIdx = idx === 0 ? 7 : 0;
+        renderAttentionSandbox();
+      });
+      document.getElementById("attn-apply-custom").addEventListener("click", () => {
+        const raw = document.getElementById("attn-custom").value.trim();
+        if (!raw) return;
+        const parts = raw.split(/\s+/).slice(0, 12);
+        if (parts.length > 0) {
+          attnTokens = parts;
+          attnQueryIdx = Math.min(attnQueryIdx, attnTokens.length - 1);
+          renderAttentionSandbox();
+        }
+      });
+      document.getElementById("attn-head").addEventListener("change", renderAttentionSandbox);
+      document.getElementById("attn-causal").addEventListener("change", renderAttentionSandbox);
+      const scaleSlider = document.getElementById("attn-scale");
+      scaleSlider.addEventListener("input", () => {
+        document.getElementById("attn-scale-val").textContent = parseFloat(scaleSlider.value).toFixed(2);
+        renderAttentionSandbox();
+      });
+      renderAttentionSandbox();
+    }
+
+    // =========================================================================
+    // 7. Simulator 2: Optimizer Landscape Race & Activation Explorer
+    // =========================================================================
+    function lossFn(x, y) {
+      return 0.08 * x * x + 1.35 * y * y + 0.3 * Math.sin(1.3 * x) * Math.cos(1.1 * y);
+    }
+
+    function gradFn(x, y) {
+      const gx = 0.16 * x + 0.3 * 1.3 * Math.cos(1.3 * x) * Math.cos(1.1 * y);
+      const gy = 2.7 * y - 0.3 * 1.1 * Math.sin(1.3 * x) * Math.sin(1.1 * y);
+      return [gx, gy];
+    }
+
+    let optRunning = true;
+    let optStart = [-3.4, 1.8];
+    let optPaths = {};
+    let optState = {};
+    let optBgImage = null;
+
+    function resetOptimizers(sx = optStart[0], sy = optStart[1]) {
+      optStart = [sx, sy];
+      optPaths = {
+        sgd: [[sx, sy]],
+        mom: [[sx, sy]],
+        adam: [[sx, sy]]
+      };
+      optState = {
+        steps: 0,
+        sgd: { x: sx, y: sy },
+        mom: { x: sx, y: sy, vx: 0, vy: 0 },
+        adam: { x: sx, y: sy, mx: 0, my: 0, vx: 0, vy: 0 }
+      };
+      drawOptimizerCanvas();
+    }
+
+    function buildLossContourBuffer(ctx, W, H) {
+      const img = ctx.createImageData(W, H);
+      for (let py = 0; py < H; py++) {
+        const y = 2.6 - (py / H) * 5.2;
+        for (let px = 0; px < W; px++) {
+          const x = -4.2 + (px / W) * 8.4;
+          const v = lossFn(x, y);
+          const norm = Math.min(1, Math.log1p(Math.max(0, v)) / 2.6);
+          const isLine = Math.abs((v * 2.4) % 1 - 0.5) < 0.055;
+          const base = Math.round(250 - norm * 48);
+          const i = (py * W + px) * 4;
+          img.data[i] = isLine ? Math.max(180, base - 26) : base;
+          img.data[i + 1] = isLine ? Math.max(188, base - 20) : base + 2;
+          img.data[i + 2] = isLine ? Math.max(206, base - 8) : Math.min(255, base + 8);
+          img.data[i + 3] = 255;
+        }
+      }
+      return img;
+    }
+
+    function stepOptimizers() {
+      const lr = parseFloat(document.getElementById("opt-lr").value);
+      optState.steps += 1;
+      const t = optState.steps;
+
+      // 1. SGD
+      const s = optState.sgd;
+      const [sgx, sgy] = gradFn(s.x, s.y);
+      if (Math.abs(s.x) < 20 && Math.abs(s.y) < 20) {
+        s.x -= lr * sgx;
+        s.y -= lr * sgy;
+        optPaths.sgd.push([s.x, s.y]);
+      }
+
+      // 2. Momentum (beta = 0.85)
+      const m = optState.mom;
+      const [mgx, mgy] = gradFn(m.x, m.y);
+      if (Math.abs(m.x) < 20 && Math.abs(m.y) < 20) {
+        m.vx = 0.85 * m.vx + lr * mgx;
+        m.vy = 0.85 * m.vy + lr * mgy;
+        m.x -= m.vx;
+        m.y -= m.vy;
+        optPaths.mom.push([m.x, m.y]);
+      }
+
+      // 3. Adam
+      const a = optState.adam;
+      const [agx, agy] = gradFn(a.x, a.y);
+      const b1 = 0.9, b2 = 0.999, eps = 1e-8;
+      a.mx = b1 * a.mx + (1 - b1) * agx;
+      a.my = b1 * a.my + (1 - b1) * agy;
+      a.vx = b2 * a.vx + (1 - b2) * agx * agx;
+      a.vy = b2 * a.vy + (1 - b2) * agy * agy;
+      const mxh = a.mx / (1 - Math.pow(b1, t));
+      const myh = a.my / (1 - Math.pow(b1, t));
+      const vxh = a.vx / (1 - Math.pow(b2, t));
+      const vyh = a.vy / (1 - Math.pow(b2, t));
+      a.x -= (lr * 0.45) * mxh / (Math.sqrt(vxh) + eps);
+      a.y -= (lr * 0.45) * myh / (Math.sqrt(vyh) + eps);
+      optPaths.adam.push([a.x, a.y]);
+    }
+
+    function drawOptimizerCanvas() {
+      const canvas = document.getElementById("opt-canvas");
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height;
+      if (!optBgImage) optBgImage = buildLossContourBuffer(ctx, W, H);
+      ctx.putImageData(optBgImage, 0, 0);
+
+      const toPx = (x, y) => [((x + 4.2) / 8.4) * W, ((2.6 - y) / 5.2) * H];
+
+      // Global minimum crosshair near (0,0)
+      const [zx, zy] = toPx(0, 0);
+      ctx.strokeStyle = "rgba(17,22,37,0.35)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(zx - 7, zy); ctx.lineTo(zx + 7, zy);
+      ctx.moveTo(zx, zy - 7); ctx.lineTo(zx, zy + 7);
+      ctx.stroke();
+
+      const drawTrail = (pts, color) => {
+        if (!pts.length) return;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        pts.forEach((pt, idx) => {
+          const [px, py] = toPx(pt[0], pt[1]);
+          if (idx === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+        const last = pts[pts.length - 1];
+        const [lx, ly] = toPx(last[0], last[1]);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      };
+
+      drawTrail(optPaths.sgd, "#1E40AF");
+      drawTrail(optPaths.mom, "#0F766E");
+      drawTrail(optPaths.adam, "#A31F34");
+
+      const fmtLoss = (p) => {
+        const l = lossFn(p.x, p.y);
+        return l > 99 ? "发散!" : l.toFixed(4);
+      };
+      document.getElementById("loss-sgd").textContent = fmtLoss(optState.sgd);
+      document.getElementById("loss-mom").textContent = fmtLoss(optState.mom);
+      document.getElementById("loss-adam").textContent = fmtLoss(optState.adam);
+      document.getElementById("opt-steps").textContent = String(optState.steps);
+    }
+
+    function evalActivation(type, z) {
+      if (type === "sigmoid") {
+        const s = 1 / (1 + Math.exp(-z));
+        return { y: s, dy: s * (1 - s), eq: "σ(z) = 1 / (1 + e⁻ᶻ) ,  σ'(z) = σ(z)(1 - σ(z))" };
+      }
+      if (type === "tanh") {
+        const t = Math.tanh(z);
+        return { y: t, dy: 1 - t * t, eq: "tanh(z) = (eᶻ - e⁻ᶻ)/(eᶻ + e⁻ᶻ) ,  tanh'(z) = 1 - tanh²(z)" };
+      }
+      if (type === "relu") {
+        return { y: Math.max(0, z), dy: z > 0 ? 1 : 0, eq: "ReLU(z) = max(0, z) ,  ReLU'(z) = 1 (z>0) else 0" };
+      }
+      // GELU approx
+      const c = Math.sqrt(2 / Math.PI);
+      const inner = c * (z + 0.044715 * z * z * z);
+      const th = Math.tanh(inner);
+      const y = 0.5 * z * (1 + th);
+      const dy = 0.5 * (1 + th) + 0.5 * z * (1 - th * th) * c * (1 + 3 * 0.044715 * z * z);
+      return { y, dy, eq: "GELU(z) = z · Φ(z) ≈ 0.5z(1 + tanh[√(2/π)(z + 0.0447z³)])" };
+    }
+
+    function drawActivationCanvas() {
+      const type = document.getElementById("act-type").value;
+      const zProbe = parseFloat(document.getElementById("act-z").value);
+      const canvas = document.getElementById("act-canvas");
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const toX = (z) => ((z + 5) / 10) * W;
+      const toY = (v) => H - ((v + 1.5) / 6.5) * H;
+
+      // Shade vanishing gradient zone |f'(z)| < 0.05
+      ctx.fillStyle = "rgba(163, 31, 52, 0.08)";
+      for (let px = 0; px < W; px += 2) {
+        const z = -5 + (px / W) * 10;
+        const { dy } = evalActivation(type, z);
+        if (Math.abs(dy) < 0.05) ctx.fillRect(px, 0, 2, H);
+      }
+
+      // Axes
+      ctx.strokeStyle = "#D8DCE6";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, toY(0)); ctx.lineTo(W, toY(0));
+      ctx.moveTo(toX(0), 0); ctx.lineTo(toX(0), H);
+      ctx.stroke();
+
+      // Plot f(z)
+      ctx.strokeStyle = "#1E40AF";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let px = 0; px <= W; px += 2) {
+        const z = -5 + (px / W) * 10;
+        const { y } = evalActivation(type, z);
+        if (px === 0) ctx.moveTo(px, toY(y));
+        else ctx.lineTo(px, toY(y));
+      }
+      ctx.stroke();
+
+      // Plot f'(z)
+      ctx.strokeStyle = "#A31F34";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      for (let px = 0; px <= W; px += 2) {
+        const z = -5 + (px / W) * 10;
+        const { dy } = evalActivation(type, z);
+        if (px === 0) ctx.moveTo(px, toY(dy));
+        else ctx.lineTo(px, toY(dy));
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Probe marker
+      const res = evalActivation(type, zProbe);
+      ctx.fillStyle = "#1E40AF";
+      ctx.beginPath(); ctx.arc(toX(zProbe), toY(res.y), 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#A31F34";
+      ctx.beginPath(); ctx.arc(toX(zProbe), toY(res.dy), 4.5, 0, Math.PI * 2); ctx.fill();
+
+      const vanish = Math.abs(res.dy) < 0.05 ? " [警告: 处于梯度消失阴影区]" : "";
+      document.getElementById("act-readout").textContent =
+        `${res.eq}\n实线 f(${zProbe.toFixed(1)}) = ${res.y.toFixed(4)}   |   虚线导数 f'(${zProbe.toFixed(1)}) = ${res.dy.toFixed(4)}${vanish}`;
+    }
+
+    function initOptimizerAndActivation() {
+      const lrEl = document.getElementById("opt-lr");
+      lrEl.addEventListener("input", () => {
+        document.getElementById("opt-lr-val").textContent = parseFloat(lrEl.value).toFixed(2);
+      });
+      document.getElementById("opt-toggle").addEventListener("click", () => {
+        optRunning = !optRunning;
+      });
+      document.getElementById("opt-step").addEventListener("click", () => {
+        optRunning = false;
+        stepOptimizers();
+        drawOptimizerCanvas();
+      });
+      document.getElementById("opt-reset").addEventListener("click", () => resetOptimizers(-3.4, 1.8));
+      document.getElementById("opt-canvas").addEventListener("click", (e) => {
+        const rect = e.target.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        const wx = -4.2 + nx * 8.4;
+        const wy = 2.6 - ny * 5.2;
+        resetOptimizers(wx, wy);
+      });
+
+      resetOptimizers(-3.4, 1.8);
+      setInterval(() => {
+        const pane = document.getElementById("pane-opt");
+        if (!optRunning || !pane.classList.contains("is-active")) return;
+        if (optState.steps < 120) {
+          stepOptimizers();
+          drawOptimizerCanvas();
+        }
+      }, 85);
+
+      document.getElementById("act-type").addEventListener("change", drawActivationCanvas);
+      document.getElementById("act-z").addEventListener("input", (e) => {
+        document.getElementById("act-z-val").textContent = parseFloat(e.target.value).toFixed(1);
+        drawActivationCanvas();
+      });
+      drawActivationCanvas();
+    }
+
+    // =========================================================================
+    // 8. Simulator 3: 2D Convolution Receptive Field Explorer
+    // =========================================================================
+    const CNN_PATTERNS = {
+      vertical: [
+        [0,0,0,0,255,255,255,255],[0,0,0,0,255,255,255,255],[0,0,0,0,255,255,255,255],[0,0,0,0,255,255,255,255],
+        [0,0,0,0,255,255,255,255],[0,0,0,0,255,255,255,255],[0,0,0,0,255,255,255,255],[0,0,0,0,255,255,255,255]
+      ],
+      horizontal: [
+        [255,255,255,255,255,255,255,255],[255,255,255,255,255,255,255,255],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+        [255,255,255,255,255,255,255,255],[255,255,255,255,255,255,255,255],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]
+      ],
+      diagonal: [
+        [255,255,0,0,0,0,0,0],[255,255,255,0,0,0,0,0],[0,255,255,255,0,0,0,0],[0,0,255,255,255,0,0,0],
+        [0,0,0,255,255,255,0,0],[0,0,0,0,255,255,255,0],[0,0,0,0,0,255,255,255],[0,0,0,0,0,0,255,255]
+      ],
+      cross: [
+        [0,0,0,255,255,0,0,0],[0,0,0,255,255,0,0,0],[0,0,0,255,255,0,0,0],[255,255,255,255,255,255,255,255],
+        [255,255,255,255,255,255,255,255],[0,0,0,255,255,0,0,0],[0,0,0,255,255,0,0,0],[0,0,0,255,255,0,0,0]
+      ],
+      seven: [
+        [0,255,255,255,255,255,255,0],[0,0,0,0,0,255,255,0],[0,0,0,0,255,255,0,0],[0,0,0,255,255,0,0,0],
+        [0,0,255,255,0,0,0,0],[0,0,255,255,0,0,0,0],[0,0,255,255,0,0,0,0],[0,0,0,0,0,0,0,0]
+      ]
+    };
+
+    const CNN_KERNELS = {
+      sobelX: [-1, 0, 1, -2, 0, 2, -1, 0, 1],
+      sobelY: [-1, -2, -1, 0, 0, 0, 1, 2, 1],
+      laplacian: [0, 1, 0, 1, -4, 1, 0, 1, 0],
+      sharpen: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+      blur: [1, 1, 1, 1, 1, 1, 1, 1, 1]
+    };
+
+    let cnnInput = CNN_PATTERNS.vertical.map((r) => [...r]);
+    let cnnKernel = [...CNN_KERNELS.sobelX];
+    let cnnHover = [1, 2];
+
+    function renderCNN() {
+      const useRelu = document.getElementById("cnn-relu").checked;
+      const usePad = document.getElementById("cnn-padding").checked;
+      const outSize = usePad ? 8 : 6;
+      const pad = usePad ? 1 : 0;
+
+      if (cnnHover[0] >= outSize) cnnHover[0] = outSize - 1;
+      if (cnnHover[1] >= outSize) cnnHover[1] = outSize - 1;
+
+      const rfStartR = cnnHover[0] - pad;
+      const rfStartC = cnnHover[1] - pad;
+
+      // Render Input 8x8
+      const inGrid = document.getElementById("cnn-input-grid");
+      inGrid.innerHTML = "";
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const val = cnnInput[r][c];
+          const inRF = r >= rfStartR && r < rfStartR + 3 && c >= rfStartC && c < rfStartC + 3;
+          const cell = document.createElement("div");
+          cell.className = `pixel-cell${inRF ? " is-rf" : ""}`;
+          cell.style.background = `rgb(${255 - val * 0.78},${255 - val * 0.72},${255 - val * 0.55})`;
+          cell.style.color = val > 150 ? "#FFFFFF" : "#111625";
+          cell.textContent = val;
+          cell.addEventListener("click", () => {
+            cnnInput[r][c] = cnnInput[r][c] > 0 ? 0 : 255;
+            renderCNN();
+          });
+          inGrid.appendChild(cell);
+        }
+      }
+
+      // Compute Output Grid
+      const outVals = [];
+      let maxAbs = 1;
+      for (let r = 0; r < outSize; r++) {
+        const row = [];
+        for (let c = 0; c < outSize; c++) {
+          let sum = 0;
+          for (let kr = 0; kr < 3; kr++) {
+            for (let kc = 0; kc < 3; kc++) {
+              const ir = r + kr - pad;
+              const ic = c + kc - pad;
+              const pix = ir >= 0 && ir < 8 && ic >= 0 && ic < 8 ? cnnInput[ir][ic] : 0;
+              sum += pix * cnnKernel[kr * 3 + kc];
+            }
+          }
+          const finalVal = useRelu ? Math.max(0, sum) : sum;
+          row.push({ raw: sum, val: finalVal });
+          maxAbs = Math.max(maxAbs, Math.abs(finalVal));
+        }
+        outVals.push(row);
+      }
+
+      document.getElementById("cnn-out-shape").textContent = `(${outSize}×${outSize})`;
+      const outGrid = document.getElementById("cnn-output-grid");
+      outGrid.style.gridTemplateColumns = `repeat(${outSize}, 32px)`;
+      outGrid.innerHTML = "";
+      for (let r = 0; r < outSize; r++) {
+        for (let c = 0; c < outSize; c++) {
+          const item = outVals[r][c];
+          const isSel = r === cnnHover[0] && c === cnnHover[1];
+          const cell = document.createElement("div");
+          cell.className = `pixel-cell${isSel ? " is-out-active" : ""}`;
+          const intensity = Math.min(1, Math.abs(item.val) / maxAbs);
+          if (item.val >= 0) {
+            cell.style.background = `rgba(30,64,175,${(intensity * 0.85).toFixed(2)})`;
+          } else {
+            cell.style.background = `rgba(163,31,52,${(intensity * 0.85).toFixed(2)})`;
+          }
+          cell.style.color = intensity > 0.45 ? "#FFFFFF" : "#111625";
+          cell.textContent = Math.round(item.val);
+          cell.addEventListener("mouseenter", () => {
+            cnnHover = [r, c];
+            renderCNN();
+          });
+          cell.addEventListener("click", () => {
+            cnnHover = [r, c];
+            renderCNN();
+          });
+          outGrid.appendChild(cell);
+        }
+      }
+
+      // Formula breakdown for active cell
+      const terms = [];
+      let rawSum = 0;
+      for (let kr = 0; kr < 3; kr++) {
+        for (let kc = 0; kc < 3; kc++) {
+          const ir = cnnHover[0] + kr - pad;
+          const ic = cnnHover[1] + kc - pad;
+          const pix = ir >= 0 && ir < 8 && ic >= 0 && ic < 8 ? cnnInput[ir][ic] : 0;
+          const w = cnnKernel[kr * 3 + kc];
+          rawSum += pix * w;
+          if (w !== 0 && pix !== 0) terms.push(`${pix}×(${w})`);
+        }
+      }
+      const afterRelu = useRelu ? Math.max(0, rawSum) : rawSum;
+      document.getElementById("cnn-formula").textContent =
+        `输出[${cnnHover[0]},${cnnHover[1]}] 点积明细:\n` +
+        (terms.length ? terms.join(" + ") : "0") +
+        `\n= 原始值 ${rawSum}${useRelu ? ` → ReLU = ${afterRelu}` : ""}`;
+    }
+
+    function renderKernelInputs() {
+      const kGrid = document.getElementById("cnn-kernel-grid");
+      kGrid.innerHTML = "";
+      cnnKernel.forEach((w, idx) => {
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.step = "1";
+        inp.className = "kernel-input";
+        inp.value = w;
+        inp.addEventListener("input", () => {
+          cnnKernel[idx] = parseFloat(inp.value) || 0;
+          renderCNN();
+        });
+        kGrid.appendChild(inp);
+      });
+    }
+
+    function initCNN() {
+      document.getElementById("cnn-pattern").addEventListener("change", (e) => {
+        cnnInput = CNN_PATTERNS[e.target.value].map((r) => [...r]);
+        renderCNN();
+      });
+      document.getElementById("cnn-kernel-preset").addEventListener("change", (e) => {
+        cnnKernel = [...CNN_KERNELS[e.target.value]];
+        renderKernelInputs();
+        renderCNN();
+      });
+      document.getElementById("cnn-relu").addEventListener("change", renderCNN);
+      document.getElementById("cnn-padding").addEventListener("change", renderCNN);
+      renderKernelInputs();
+      renderCNN();
+    }
+
+    // =========================================================================
+    // 9. Quiz Renderer
+    // =========================================================================
+    function renderQuiz() {
+      const nav = document.getElementById("quiz-nav");
+      nav.innerHTML = "";
+      let score = 0;
+
+      QUIZ_DATA.forEach((q, idx) => {
+        const chosen = state.quizAnswers[idx];
+        const isCorrect = chosen === q.answer;
+        if (isCorrect) score++;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "quiz-num-btn";
+        if (idx === state.quizIndex) btn.classList.add("is-current");
+        if (chosen !== undefined) btn.classList.add(isCorrect ? "is-correct" : "is-wrong");
+        btn.textContent = String(idx + 1);
+        btn.addEventListener("click", () => {
+          state.quizIndex = idx;
+          saveState();
+          renderQuiz();
+        });
+        nav.appendChild(btn);
+      });
+
+      document.getElementById("quiz-score-big").textContent = `${score} / ${QUIZ_DATA.length}`;
+
+      const idx = state.quizIndex;
+      const q = QUIZ_DATA[idx];
+      const chosen = state.quizAnswers[idx];
+      const card = document.getElementById("quiz-card");
+      const letters = ["A", "B", "C", "D"];
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:12px; color:var(--muted);">
+          <span>第 ${idx + 1} / ${QUIZ_DATA.length} 题 · 关联讲次 P${q.p}</span>
+          <button type="button" class="btn btn-sm" id="quiz-jump-lec">定位到第 ${q.p} 讲讲义</button>
+        </div>
+        <div class="quiz-q">${q.question}</div>
+        <div class="quiz-options">
+          ${q.options
+            .map((opt, oIdx) => {
+              let cls = "quiz-opt";
+              if (chosen !== undefined) {
+                if (oIdx === q.answer) cls += " is-right";
+                else if (oIdx === chosen) cls += " is-bad";
+              }
+              return `<button type="button" class="${cls}" data-opt="${oIdx}" ${chosen !== undefined ? "disabled" : ""}>
+                <span class="quiz-opt-key">${letters[oIdx]}.</span>
+                <span>${opt}</span>
+              </button>`;
+            })
+            .join("")}
+        </div>
+        ${chosen !== undefined
+          ? `<div class="quiz-explain"><strong>解析：</strong>${q.explain}</div>`
+          : ""}
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+          <button type="button" class="btn btn-sm" id="quiz-prev" ${idx === 0 ? "disabled" : ""}>上一题</button>
+          <button type="button" class="btn btn-primary btn-sm" id="quiz-next" ${idx === QUIZ_DATA.length - 1 ? "disabled" : ""}>下一题</button>
+        </div>
+      `;
+
+      card.querySelectorAll("[data-opt]").forEach((optBtn) => {
+        optBtn.addEventListener("click", () => {
+          state.quizAnswers[idx] = parseInt(optBtn.dataset.opt, 10);
+          saveState();
+          renderQuiz();
+        });
+      });
+
+      document.getElementById("quiz-jump-lec").addEventListener("click", () => {
+        state.activeP = q.p;
+        saveState();
+        renderLectures();
+        renderLectureDetail();
+        document.getElementById("syllabus").scrollIntoView();
+      });
+
+      document.getElementById("quiz-prev").addEventListener("click", () => {
+        if (state.quizIndex > 0) {
+          state.quizIndex -= 1;
+          saveState();
+          renderQuiz();
+        }
+      });
+      document.getElementById("quiz-next").addEventListener("click", () => {
+        if (state.quizIndex < QUIZ_DATA.length - 1) {
+          state.quizIndex += 1;
+          saveState();
+          renderQuiz();
+        }
+      });
+    }
+
+    // =========================================================================
+    // 10. Season Catalog Filter & Bookmark Manager
+    // =========================================================================
+    let activeCat = "all";
+
+    function renderCatalog() {
+      const q = document.getElementById("cat-search").value.trim().toLowerCase();
+      const sortMode = document.getElementById("cat-sort").value;
+      const savedOnly = document.getElementById("cat-saved-only").checked;
+
+      let list = DL_CATALOG.filter((c) => {
+        if (activeCat !== "all" && c.cat !== activeCat) return false;
+        if (savedOnly && !state.savedBVs.includes(c.bvid)) return false;
+        if (q) {
+          const hay = `${c.title} ${c.org} ${c.bvid} ${c.note} ${c.catName}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (sortMode === "dur-desc") list = [...list].sort((a, b) => b.hrs - a.hrs);
+      else if (sortMode === "dur-asc") list = [...list].sort((a, b) => a.hrs - b.hrs);
+
+      const tbody = document.getElementById("catalog-tbody");
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:28px; color:var(--muted);">当前筛选条件下暂无课程，可清空搜索框或取消“仅看已收藏”。</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list
+        .map((c) => {
+          const isSaved = state.savedBVs.includes(c.bvid);
+          const isDub = c.lang.includes("中配");
+          return `
+            <tr>
+              <td><span class="badge">${c.catName}</span></td>
+              <td>
+                <div class="course-title-cell">${c.title}</div>
+                <div class="course-note-cell">${c.note} · <span style="font-family:var(--font-mono);">${c.bvid}</span></div>
+              </td>
+              <td>
+                <div style="font-weight:600; margin-bottom:4px;">${c.org}</div>
+                <span class="badge${isDub ? " badge-dub" : ""}">${c.lang}</span>
+              </td>
+              <td style="font-family:var(--font-mono); white-space:nowrap;">${c.dur}<br><span style="font-size:11.5px; color:var(--muted);">(${c.hrs}h)</span></td>
+              <td>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <a class="btn btn-sm" href="https://www.bilibili.com/video/${c.bvid}/" target="_blank" rel="noopener noreferrer">观看</a>
+                  <button type="button" class="bookmark-btn${isSaved ? " is-saved" : ""}" data-save-bv="${c.bvid}">${isSaved ? "已收藏 ★" : "加入清单"}</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      tbody.querySelectorAll("[data-save-bv]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const bv = btn.dataset.saveBv;
+          if (state.savedBVs.includes(bv)) {
+            state.savedBVs = state.savedBVs.filter((x) => x !== bv);
+          } else {
+            state.savedBVs.push(bv);
+          }
+          saveState();
+          renderCatalog();
+        });
+      });
+    }
+
+    function initCatalog() {
+      document.querySelectorAll("#cat-pills .cat-pill").forEach((pill) => {
+        pill.addEventListener("click", () => {
+          document.querySelectorAll("#cat-pills .cat-pill").forEach((p) => p.classList.remove("is-active"));
+          pill.classList.add("is-active");
+          activeCat = pill.dataset.cat;
+          renderCatalog();
+        });
+      });
+      document.querySelectorAll("#roadmap-row .stage-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          document.querySelectorAll("#roadmap-row .stage-card").forEach((c) => c.classList.remove("is-active"));
+          card.classList.add("is-active");
+          activeCat = card.dataset.cat;
+          document.querySelectorAll("#cat-pills .cat-pill").forEach((p) => {
+            p.classList.toggle("is-active", p.dataset.cat === activeCat);
+          });
+          renderCatalog();
+        });
+      });
+      document.getElementById("cat-search").addEventListener("input", renderCatalog);
+      document.getElementById("cat-sort").addEventListener("change", renderCatalog);
+      document.getElementById("cat-saved-only").addEventListener("change", renderCatalog);
+      renderCatalog();
+    }
+
+    // =========================================================================
+    // 11. Export Personalized Study Report (.md)
+    // =========================================================================
+    function exportStudyReport() {
+      let score = 0;
+      QUIZ_DATA.forEach((q, idx) => {
+        if (state.quizAnswers[idx] === q.answer) score++;
+      });
+
+      const completedTitles = MIT_LECTURES
+        .filter((l) => state.completedP.includes(l.p))
+        .map((l) => `- [x] P${l.p} (${l.officialLec}): ${l.title} (${l.duration})`);
+      const pendingTitles = MIT_LECTURES
+        .filter((l) => !state.completedP.includes(l.p))
+        .map((l) => `- [ ] P${l.p} (${l.officialLec}): ${l.title} (${l.duration})`);
+
+      const notesMd = MIT_LECTURES
+        .filter((l) => (state.notes[l.p] || "").trim())
+        .map((l) => `### P${l.p}: ${l.zhTitle}\n${state.notes[l.p].trim()}\n`)
+        .join("\n");
+
+      const savedCourses = DL_CATALOG
+        .filter((c) => state.savedBVs.includes(c.bvid))
+        .map((c) => `- **${c.title}** (${c.org} · ${c.dur}) — https://www.bilibili.com/video/${c.bvid}/`);
+
+      const md = [
+        `# MIT 6.S191 (2026) 深度学习个人学习进度报告`,
+        `> 导出时间：${new Date().toLocaleString("zh-CN")}`,
+        ``,
+        `## 1. 学习概览`,
+        `- 已完成主干课：${state.completedP.length} / 9 讲`,
+        `- 已完成实验 Labs：${state.completedLabs.length} / 3 个`,
+        `- 自测得分：${score} / ${QUIZ_DATA.length} 题`,
+        `- 已收藏合集进阶课程：${state.savedBVs.length} 门`,
+        ``,
+        `## 2. 讲次进度清单`,
+        ...completedTitles,
+        ...pendingTitles,
+        ``,
+        `## 3. 个人学习笔记`,
+        notesMd || "（暂无个人笔记，可在网页中各讲讲义卡片下填写。）",
+        ``,
+        `## 4. 已收藏同合集深度学习课程`,
+        ...(savedCourses.length ? savedCourses : ["（暂未收藏课程）"]),
+        ``
+      ].join("\n");
+
+      const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "MIT_6S191_个人学习总结报告.md";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // =========================================================================
+    // 12. Bootstrapping & Tab Wiring
+    // =========================================================================
+    function switchLabTab(tabName) {
+      document.querySelectorAll(".lab-tab").forEach((b) => b.classList.toggle("is-active", b.dataset.lab === tabName));
+      document.querySelectorAll(".lab-pane").forEach((p) => p.classList.toggle("is-active", p.id === `pane-${tabName}`));
+      if (tabName === "opt") {
+        drawOptimizerCanvas();
+        drawActivationCanvas();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateTopProgress();
+      renderLectures();
+      renderLectureDetail();
+      renderLabs();
+      initAttentionSandbox();
+      initOptimizerAndActivation();
+      initCNN();
+      renderQuiz();
+      initCatalog();
+
+      document.querySelectorAll(".lab-tab").forEach((btn) => {
+        btn.addEventListener("click", () => switchLabTab(btn.dataset.lab));
+      });
+
+      document.getElementById("jump-attn-lab").addEventListener("click", () => {
+        switchLabTab("attn");
+        document.getElementById("lab").scrollIntoView();
+      });
+
+      document.getElementById("jump-p2-detail").addEventListener("click", () => {
+        state.activeP = 2;
+        saveState();
+        renderLectures();
+        renderLectureDetail();
+        document.getElementById("syllabus").scrollIntoView();
+      });
+
+      document.getElementById("quiz-reset-btn").addEventListener("click", () => {
+        state.quizAnswers = {};
+        state.quizIndex = 0;
+        saveState();
+        renderQuiz();
+      });
+
+      document.getElementById("export-report-btn").addEventListener("click", exportStudyReport);
+      document.getElementById("export-report-footer").addEventListener("click", exportStudyReport);
+    });
+  </script>
+</body>
+</html>
